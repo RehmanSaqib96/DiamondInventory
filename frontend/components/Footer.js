@@ -8,24 +8,27 @@ export default function Footer() {
                 <a href="#">Privacy Policy</a>
             </div>
             <div className="social-icons">
-                <a href="#">Facebook</a>
-                <a href="#">Instagram</a>
-                <a href="#">YouTube</a>
+                <a href="#" aria-label="Facebook">Facebook</a>
+                <a href="#" aria-label="Instagram">Instagram</a>
+                <a href="#" aria-label="YouTube">YouTube</a>
             </div>
             <style jsx>{`
         .footer {
-          background: #f8f8f8;
-          padding: 20px;
+          background: #e9e9e9;
+          padding: 30px;
           text-align: center;
-          font-size: 14px;
+          font-size: 16px;
+          color: #333;
         }
         .footer-links, .social-icons {
-          margin-bottom: 10px;
+          margin-bottom: 15px;
         }
         a {
           margin: 0 10px;
           color: #333;
           text-decoration: none;
+          font-weight: 500;
+          transition: color 0.3s;
         }
         a:hover {
           color: #a67c52;
