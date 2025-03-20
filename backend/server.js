@@ -34,4 +34,8 @@ sequelize.sync()
     .then(() => console.log('Database synced'))
     .catch(err => console.error('Sync error:', err));
 
+sequelize.sync()
+    .then(() => console.log('Models synced'))
+    .catch(err => console.error('Sync error:', err));
+
 app.listen(port, () => console.log(`Server running on port ${port}`));

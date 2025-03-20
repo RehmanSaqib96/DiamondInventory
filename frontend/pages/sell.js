@@ -14,7 +14,7 @@ export default function Sell() {
                     <li>Wait for verification and pricing.</li>
                     <li>Receive offers and finalize the sale.</li>
                 </ol>
-                <Link href="/dashboard">
+                <Link href="/frontend/pages/seller-dashboard">
                     <a className="btn">Start Selling</a>
                 </Link>
             </section>

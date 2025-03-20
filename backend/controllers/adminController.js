@@ -8,7 +8,29 @@ exports.getAllUsers = async (req, res) => {
         const users = await User.findAll();
         res.json(users);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching users', error });
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Error fetching users', error: error.message });
+    }
+};
+
+exports.updateUserRole = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { role } = req.body;
+        // Validate the role value
+        if (!['customer', 'seller'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role provided' });
+        }
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        user.role = role;
+        await user.save();
+        res.json({ message: 'User role updated successfully', user });
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        res.status(500).json({ message: 'Error updating user role', error: error.message });
     }
 };
 

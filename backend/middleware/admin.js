@@ -9,5 +9,5 @@ router.get('/users', verifyToken, isAdmin, logAction('View Users'), adminControl
 router.get('/inventory', verifyToken, isAdmin, logAction('View Inventory'), adminController.getFullInventory);
 router.get('/sales', verifyToken, isAdmin, logAction('View Sales Analytics'), adminController.getSalesAnalytics);
 router.get('/logs', verifyToken, isAdmin, logAction('View Security Logs'), adminController.getSecurityLogs);
-
+router.put('/users/:id', verifyToken, isAdmin, adminController.updateUserRole);
 module.exports = router;

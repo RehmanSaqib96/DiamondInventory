@@ -11,25 +11,41 @@ export default function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setErrorMsg(''); // Clear previous error
+
         if (!email || !password) {
             setErrorMsg('Please fill in all fields.');
             return;
         }
-        // Call the backend API for login
-        const res = await fetch('http://localhost:5000/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-        if (data.accessToken) {
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
-            // Optionally store user details
-            localStorage.setItem('user', JSON.stringify(data.user));
-            router.push('/dashboard');
-        } else {
-            setErrorMsg(data.message || 'Invalid credentials, please try again.');
+
+        try {
+            const res = await fetch('http://localhost:5000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            console.log('Response status:', res.status);
+            const data = await res.json();
+            console.log('Response data:', data);
+
+            if (res.ok && data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Redirect based on user role:
+                if (data.user.role === 'customer') {
+                    router.push('/');
+                } else if (data.user.role === 'seller') {
+                    router.push('/seller-dashboard');
+                }
+            } else {
+                setErrorMsg(data.message || 'Invalid credentials, please try again.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setErrorMsg('Error connecting to the server.');
         }
     };
 
@@ -48,14 +64,14 @@ export default function Login() {
                         type="email"
                         placeholder="Email"
                         value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                     <input
                         type="password"
                         placeholder="Password"
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                     <div className="link-group">
@@ -63,7 +79,9 @@ export default function Login() {
                             Forgot Password?
                         </Link>
                     </div>
-                    <button type="submit" className="btn">Login</button>
+                    <button type="submit" className="btn">
+                        Login
+                    </button>
                 </form>
                 <p className="signup-text">
                     New to DiamondStore?{' '}
@@ -79,7 +97,7 @@ export default function Login() {
                     padding: 40px;
                     border: 1px solid #eee;
                     border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
                     text-align: center;
                     background: #fff;
                 }

@@ -1,16 +1,18 @@
 // components/Footer.js
+import Link from 'next/link';
+
 export default function Footer() {
     return (
         <footer className="footer">
-            <div className="footer-links">
-                <a href="#">Customer Support</a>
-                <a href="#">Terms &amp; Conditions</a>
-                <a href="#">Privacy Policy</a>
-            </div>
-            <div className="social-icons">
-                <a href="#" aria-label="Facebook">Facebook</a>
-                <a href="#" aria-label="Instagram">Instagram</a>
-                <a href="#" aria-label="YouTube">YouTube</a>
+            <div className="footer-content">
+                <div className="footer-links">
+                    <Link href="/customer-support" className="link">Customer Support</Link>
+                    <Link href="/terms" className="link">Terms &amp; Conditions</Link>
+                    <Link href="/privacy" className="link">Privacy Policy</Link>
+                </div>
+                <div className="contact-info">
+                    Customer Support: support@diamondstore.com | +1 800-123-456
+                </div>
             </div>
             <style jsx>{`
         .footer {
@@ -20,18 +22,25 @@ export default function Footer() {
           font-size: 16px;
           color: #333;
         }
-        .footer-links, .social-icons {
-          margin-bottom: 15px;
+        .footer-content {
+          max-width: 800px;
+          margin: 0 auto;
         }
-        a {
+        .footer-links {
+          margin-bottom: 10px;
+        }
+        .link {
           margin: 0 10px;
           color: #333;
           text-decoration: none;
           font-weight: 500;
           transition: color 0.3s;
         }
-        a:hover {
+        .link:hover {
           color: #a67c52;
+        }
+        .contact-info {
+          font-weight: bold;
         }
       `}</style>
         </footer>
