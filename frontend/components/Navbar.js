@@ -51,7 +51,7 @@ export default function Navbar() {
             <div className="nav-actions">
                 {user ? (
                     <div className="dropdown">
-                        <span className="account-label">{user.name}</span>
+                        <span className="account-label">{user.name || user.email || 'Unknown User'}</span>
                         <div className="dropdown-content">
                             <Link href="/profile">Profile</Link>
                             <button onClick={handleLogout}>Logout</button>

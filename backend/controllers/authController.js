@@ -70,24 +70,29 @@ exports.login = async (req, res) => {
         }
 
         console.log("Stored password:", user.password);
-        console.log("Entered password:", password);
-        console.log("Stored password from DB:", user.password);
-        console.log("Entered password (should be plain text):", password);
 
         // 2. Compare the provided password with the hashed password in DB
         const match = await bcrypt.compare(password, user.password);
-        console.log("Password Match:", match);
         if (!match) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // 3. If matched, generate JWT or set session
+        // 3. Generate JWT (ensure that JWT_SECRET is the same as used in your verifyToken middleware)
         const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-        return res.json({ accessToken: token, user: { id: user.id, email: user.email, role: user.role } });
 
+        // 4. Return the token and the user object, including the name
+        res.json({
+            accessToken: token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
     } catch (error) {
         console.error('Login error:', error);
-        return res.status(500).json({ message: 'Error logging in' });
+        res.status(500).json({ message: 'Error logging in' });
     }
 };
 
