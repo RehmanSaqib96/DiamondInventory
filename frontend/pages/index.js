@@ -13,7 +13,7 @@ export default function Home() {
     const fetchDiamonds = async () => {
         try {
             // No Authorization header needed
-            const res = await fetch('http://localhost:5000/diamonds');
+            const res = await fetch('http://localhost:5000/diamonds/public');
             if (!res.ok) {
                 console.error('Failed to fetch diamonds');
                 return;
