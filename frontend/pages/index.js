@@ -1,4 +1,3 @@
-// pages/index.js
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
@@ -7,23 +6,24 @@ import DiamondCard from '../components/DiamondCard';
 export default function Home() {
     const [diamonds, setDiamonds] = useState([]);
 
+    useEffect(() => {
+        fetchDiamonds();
+    }, []);
+
     const fetchDiamonds = async () => {
         try {
+            // No Authorization header needed
             const res = await fetch('http://localhost:5000/diamonds');
-            if (res.ok) {
-                const data = await res.json();
-                setDiamonds(data);
-            } else {
+            if (!res.ok) {
                 console.error('Failed to fetch diamonds');
+                return;
             }
+            const data = await res.json();
+            setDiamonds(data);
         } catch (error) {
             console.error('Error fetching diamonds:', error);
         }
     };
-
-    useEffect(() => {
-        fetchDiamonds();
-    }, []);
 
     return (
         <Layout>
@@ -38,13 +38,13 @@ export default function Home() {
                 ))}
             </section>
             <style jsx>{`
-                .diamond-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 20px;
-                    padding: 20px;
-                }
-            `}</style>
+        .diamond-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+          padding: 20px;
+        }
+      `}</style>
         </Layout>
     );
 }

@@ -1,4 +1,3 @@
-// pages/seller-dashboard.js
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 
@@ -10,14 +9,15 @@ export default function SellerDashboard() {
         color: '',
         clarity: 'IF',
         price: '',
-        imageUrl: '', // URL returned after uploading
+        imageUrl: '',
         status: 'Available'
     });
-    const [imageFile, setImageFile] = useState(null); // For file upload
+    const [imageFile, setImageFile] = useState(null);
     const [inventory, setInventory] = useState([]);
     const [errorMsg, setErrorMsg] = useState('');
+    const [editingDiamond, setEditingDiamond] = useState(null);
 
-    // Preset options for cut and clarity
+    // Preset options
     const cutOptions = ['Brilliant', 'Princess', 'Emerald', 'Oval', 'Radiant', 'Asscher'];
     const clarityOptions = ['IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1'];
 
@@ -48,20 +48,19 @@ export default function SellerDashboard() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Handle file input change for image upload
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    // Add a new diamond: First, if an image file is provided, upload it
-    const handleAddDiamond = async (e) => {
+    // Add or update diamond (if editingDiamond is not null, update; otherwise, add new)
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('accessToken');
-        let imageUrl = formData.imageUrl; // fallback if file upload is not used
+        let imageUrl = formData.imageUrl;
 
-        // If an image file is selected, use FormData to upload it
+        // If file is selected, upload image first
         if (imageFile) {
             const uploadData = new FormData();
             uploadData.append('file', imageFile);
@@ -72,8 +71,8 @@ export default function SellerDashboard() {
                     body: uploadData
                 });
                 if (uploadRes.ok) {
-                    const uploadDataRes = await uploadRes.json();
-                    imageUrl = uploadDataRes.url; // Assume backend returns the URL in { url: "..." }
+                    const uploadResult = await uploadRes.json();
+                    imageUrl = uploadResult.url; // backend returns { url: "..." }
                 } else {
                     setErrorMsg('Failed to upload image.');
                     return;
@@ -85,18 +84,31 @@ export default function SellerDashboard() {
             }
         }
 
-        // Prepare diamond data, replacing image field with the uploaded imageUrl
         const diamondData = { ...formData, imageUrl };
 
         try {
-            const res = await fetch('http://localhost:5000/diamonds', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(diamondData)
-            });
+            let res;
+            if (editingDiamond) {
+                // Update diamond via PUT
+                res = await fetch(`http://localhost:5000/diamonds/${editingDiamond.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(diamondData)
+                });
+            } else {
+                // Add new diamond via POST
+                res = await fetch('http://localhost:5000/diamonds', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(diamondData)
+                });
+            }
             if (res.ok) {
                 fetchInventory();
                 setFormData({
@@ -110,43 +122,31 @@ export default function SellerDashboard() {
                     status: 'Available'
                 });
                 setImageFile(null);
+                setEditingDiamond(null);
             } else {
                 const data = await res.json();
-                setErrorMsg(data.message || 'Error adding diamond.');
+                setErrorMsg(data.message || 'Error submitting diamond data.');
             }
         } catch (error) {
-            console.error('Add diamond error:', error);
+            console.error('Submit diamond error:', error);
             setErrorMsg('Error connecting to the server.');
         }
     };
 
-    // Edit a diamond
-    const handleEdit = async (id) => {
-        const newTitle = prompt("Enter new title:");
-        if (!newTitle) return;
-        const token = localStorage.getItem('accessToken');
-        try {
-            const res = await fetch(`http://localhost:5000/diamonds/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ title: newTitle })
-            });
-            if (res.ok) {
-                fetchInventory();
-            } else {
-                const data = await res.json();
-                setErrorMsg(data.message || 'Error updating diamond.');
-            }
-        } catch (error) {
-            console.error('Edit diamond error:', error);
-            setErrorMsg('Error connecting to the server.');
-        }
+    const handleEditClick = (diamond) => {
+        setEditingDiamond(diamond);
+        setFormData({
+            title: diamond.title,
+            carat: diamond.carat,
+            cut: diamond.cut,
+            color: diamond.color,
+            clarity: diamond.clarity,
+            price: diamond.price,
+            imageUrl: diamond.imageUrl,
+            status: diamond.status
+        });
     };
 
-    // Delete a diamond
     const handleDelete = async (id) => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -166,7 +166,6 @@ export default function SellerDashboard() {
         }
     };
 
-    // Update diamond status
     const handleStatusChange = async (id, newStatus) => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -195,8 +194,8 @@ export default function SellerDashboard() {
             <h1>Seller Dashboard</h1>
             {errorMsg && <p className="error">{errorMsg}</p>}
             <section className="add-diamond">
-                <h2>Add New Diamond</h2>
-                <form onSubmit={handleAddDiamond}>
+                <h2>{editingDiamond ? 'Edit Diamond' : 'Add New Diamond'}</h2>
+                <form onSubmit={handleSubmit}>
                     <div className="form-row">
                         <input name="title" placeholder="Title" value={formData.title} onChange={handleChange} required />
                         <input name="carat" placeholder="Carat" value={formData.carat} onChange={handleChange} required />
@@ -236,7 +235,12 @@ export default function SellerDashboard() {
                             <img src={imageFile ? URL.createObjectURL(imageFile) : formData.imageUrl} alt="Image Preview" />
                         )}
                     </div>
-                    <button type="submit" className="btn">Add Diamond</button>
+                    <button type="submit" className="btn">{editingDiamond ? 'Update Diamond' : 'Add Diamond'}</button>
+                    {editingDiamond && (
+                        <button type="button" className="btn cancel" onClick={() => { setEditingDiamond(null); setFormData({ title: '', carat: '', cut: 'Brilliant', color: '', clarity: 'IF', price: '', imageUrl: '', status: 'Available' }); }}>
+                            Cancel
+                        </button>
+                    )}
                 </form>
             </section>
             <section className="inventory">
@@ -252,7 +256,7 @@ export default function SellerDashboard() {
                                 </div>
                             </div>
                             <div className="actions">
-                                <button className="edit-btn" onClick={() => handleEdit(item.id)}>Edit</button>
+                                <button className="edit-btn" onClick={() => handleEditClick(item)}>Edit</button>
                                 <button className="delete-btn" onClick={() => handleDelete(item.id)}>Delete</button>
                                 <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)}>
                                     <option value="Available">Available</option>
@@ -313,9 +317,13 @@ export default function SellerDashboard() {
           font-size: 16px;
           cursor: pointer;
           transition: background 0.3s;
+          margin: 5px;
         }
         .btn:hover {
           background: #8c6234;
+        }
+        .btn.cancel {
+          background: #aaa;
         }
         ul {
           list-style: none;

@@ -2,11 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const { verifyToken, isAdmin } = require('../middleware/auth');
+const { verifyToken, isSeller } = require('../middleware/auth');
 
-router.get('/users', verifyToken, isAdmin, adminController.getAllUsers);
-router.get('/inventory', verifyToken, isAdmin, adminController.getFullInventory);
-router.get('/sales', verifyToken, isAdmin, adminController.getSalesAnalytics);
-router.get('/logs', verifyToken, isAdmin, adminController.getSecurityLogs);
+console.log('adminController:', adminController);
+
+router.get('/users', verifyToken, isSeller, adminController.getAllUsers);
+router.get('/inventory', verifyToken, isSeller, adminController.getFullInventory);
+router.get('/sales', verifyToken, isSeller, adminController.getSalesAnalytics);
+router.get('/logs', verifyToken, isSeller, adminController.getSecurityLogs);
+router.put('/users/:id', verifyToken, isSeller, adminController.updateUserRole);
 
 module.exports = router;

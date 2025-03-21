@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Diamond = require('../models/Diamond');
 const Order = require('../models/Order');
 
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll();
         res.json(users);
@@ -13,11 +13,10 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-exports.updateUserRole = async (req, res) => {
+const updateUserRole = async (req, res) => {
     try {
         const userId = req.params.id;
         const { role } = req.body;
-        // Validate the role value
         if (!['customer', 'seller'].includes(role)) {
             return res.status(400).json({ message: 'Invalid role provided' });
         }
@@ -34,31 +33,37 @@ exports.updateUserRole = async (req, res) => {
     }
 };
 
-exports.getFullInventory = async (req, res) => {
+const getFullInventory = async (req, res) => {
     try {
         const diamonds = await Diamond.findAll();
         res.json(diamonds);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching inventory', error });
+        res.status(500).json({ message: 'Error fetching inventory', error: error.message });
     }
 };
 
-exports.getSalesAnalytics = async (req, res) => {
+const getSalesAnalytics = async (req, res) => {
     try {
         const orders = await Order.findAll();
-        // Simplified example: total orders count as total sales.
         const totalSales = orders.length;
         res.json({ totalSales });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching sales analytics', error });
+        res.status(500).json({ message: 'Error fetching sales analytics', error: error.message });
     }
 };
 
-exports.getSecurityLogs = async (req, res) => {
+const getSecurityLogs = async (req, res) => {
     try {
-        // Dummy logs for demonstration.
         res.json([{ id: 1, action: 'User login', timestamp: new Date() }]);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching logs', error });
+        res.status(500).json({ message: 'Error fetching logs', error: error.message });
     }
+};
+
+module.exports = {
+    getAllUsers,
+    updateUserRole,
+    getFullInventory,
+    getSalesAnalytics,
+    getSecurityLogs,
 };

@@ -3,6 +3,16 @@ const csvParser = require('csv-parser');
 const fs = require('fs');
 const Diamond = require('../models/Diamond');
 
+exports.getAllDiamondsPublic = async (req, res) => {
+    try {
+        const diamonds = await Diamond.findAll();
+        res.json(diamonds);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching diamonds', error: error.message });
+    }
+};
+
+
 exports.createDiamond = async (req, res) => {
     try {
         const { title, description, price, carat, color, clarity } = req.body;
