@@ -1,3 +1,4 @@
+// pages/seller-dashboard.js
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 
@@ -5,19 +6,19 @@ export default function SellerDashboard() {
     const [formData, setFormData] = useState({
         title: '',
         carat: '',
+        description: '',
         cut: 'Brilliant',
         color: '',
         clarity: 'IF',
         price: '',
-        imageUrl: '',
+        imageUrl: '', // URL returned after uploading
         status: 'Available'
     });
-    const [imageFile, setImageFile] = useState(null);
+    const [imageFile, setImageFile] = useState(null); // For file upload
     const [inventory, setInventory] = useState([]);
     const [errorMsg, setErrorMsg] = useState('');
-    const [editingDiamond, setEditingDiamond] = useState(null);
 
-    // Preset options
+    // Preset options for cut and clarity
     const cutOptions = ['Brilliant', 'Princess', 'Emerald', 'Oval', 'Radiant', 'Asscher'];
     const clarityOptions = ['IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1'];
 
@@ -48,19 +49,20 @@ export default function SellerDashboard() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Handle file input change for image upload
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    // Add or update diamond (if editingDiamond is not null, update; otherwise, add new)
-    const handleSubmit = async (e) => {
+    // Add a new diamond: First, if an image file is provided, upload it
+    const handleAddDiamond = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('accessToken');
-        let imageUrl = formData.imageUrl;
+        let imageUrl = formData.imageUrl; // fallback if file upload is not used
 
-        // If file is selected, upload image first
+        // If an image file is selected, use FormData to upload it
         if (imageFile) {
             const uploadData = new FormData();
             uploadData.append('file', imageFile);
@@ -71,8 +73,8 @@ export default function SellerDashboard() {
                     body: uploadData
                 });
                 if (uploadRes.ok) {
-                    const uploadResult = await uploadRes.json();
-                    imageUrl = uploadResult.url; // backend returns { url: "..." }
+                    const uploadDataRes = await uploadRes.json();
+                    imageUrl = uploadDataRes.url; // Assume backend returns the URL in { url: "..." }
                 } else {
                     setErrorMsg('Failed to upload image.');
                     return;
@@ -84,36 +86,24 @@ export default function SellerDashboard() {
             }
         }
 
+        // Prepare diamond data, replacing image field with the uploaded imageUrl
         const diamondData = { ...formData, imageUrl };
 
         try {
-            let res;
-            if (editingDiamond) {
-                // Update diamond via PUT
-                res = await fetch(`http://localhost:5000/diamonds/${editingDiamond.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(diamondData)
-                });
-            } else {
-                // Add new diamond via POST
-                res = await fetch('http://localhost:5000/diamonds', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(diamondData)
-                });
-            }
+            const res = await fetch('http://localhost:5000/diamonds', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(diamondData)
+            });
             if (res.ok) {
                 fetchInventory();
                 setFormData({
                     title: '',
                     carat: '',
+                    description: '',
                     cut: 'Brilliant',
                     color: '',
                     clarity: 'IF',
@@ -122,31 +112,43 @@ export default function SellerDashboard() {
                     status: 'Available'
                 });
                 setImageFile(null);
-                setEditingDiamond(null);
             } else {
                 const data = await res.json();
-                setErrorMsg(data.message || 'Error submitting diamond data.');
+                setErrorMsg(data.message || 'Error adding diamond.');
             }
         } catch (error) {
-            console.error('Submit diamond error:', error);
+            console.error('Add diamond error:', error);
             setErrorMsg('Error connecting to the server.');
         }
     };
 
-    const handleEditClick = (diamond) => {
-        setEditingDiamond(diamond);
-        setFormData({
-            title: diamond.title,
-            carat: diamond.carat,
-            cut: diamond.cut,
-            color: diamond.color,
-            clarity: diamond.clarity,
-            price: diamond.price,
-            imageUrl: diamond.imageUrl,
-            status: diamond.status
-        });
+    // Edit a diamond
+    const handleEdit = async (id) => {
+        const newTitle = prompt("Enter new title:");
+        if (!newTitle) return;
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`http://localhost:5000/diamonds/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ title: newTitle })
+            });
+            if (res.ok) {
+                fetchInventory();
+            } else {
+                const data = await res.json();
+                setErrorMsg(data.message || 'Error updating diamond.');
+            }
+        } catch (error) {
+            console.error('Edit diamond error:', error);
+            setErrorMsg('Error connecting to the server.');
+        }
     };
 
+    // Delete a diamond
     const handleDelete = async (id) => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -166,6 +168,7 @@ export default function SellerDashboard() {
         }
     };
 
+    // Update diamond status
     const handleStatusChange = async (id, newStatus) => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -194,8 +197,8 @@ export default function SellerDashboard() {
             <h1>Seller Dashboard</h1>
             {errorMsg && <p className="error">{errorMsg}</p>}
             <section className="add-diamond">
-                <h2>{editingDiamond ? 'Edit Diamond' : 'Add New Diamond'}</h2>
-                <form onSubmit={handleSubmit}>
+                <h2>Add New Diamond</h2>
+                <form onSubmit={handleAddDiamond}>
                     <div className="form-row">
                         <input name="title" placeholder="Title" value={formData.title} onChange={handleChange} required />
                         <input name="carat" placeholder="Carat" value={formData.carat} onChange={handleChange} required />
@@ -207,6 +210,15 @@ export default function SellerDashboard() {
                             ))}
                         </select>
                         <input name="color" placeholder="Color" value={formData.color} onChange={handleChange} required />
+                    </div>
+                    <div className="form-row">
+            <textarea
+                name="description"
+                placeholder="Description"
+                value={formData.description}
+                onChange={handleChange}
+                style={{ flex: '1 1 100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
                     </div>
                     <div className="form-row">
                         <select name="clarity" value={formData.clarity} onChange={handleChange} required>
@@ -235,12 +247,7 @@ export default function SellerDashboard() {
                             <img src={imageFile ? URL.createObjectURL(imageFile) : formData.imageUrl} alt="Image Preview" />
                         )}
                     </div>
-                    <button type="submit" className="btn">{editingDiamond ? 'Update Diamond' : 'Add Diamond'}</button>
-                    {editingDiamond && (
-                        <button type="button" className="btn cancel" onClick={() => { setEditingDiamond(null); setFormData({ title: '', carat: '', cut: 'Brilliant', color: '', clarity: 'IF', price: '', imageUrl: '', status: 'Available' }); }}>
-                            Cancel
-                        </button>
-                    )}
+                    <button type="submit" className="btn">Add Diamond</button>
                 </form>
             </section>
             <section className="inventory">
@@ -249,14 +256,20 @@ export default function SellerDashboard() {
                     {inventory.map((item) => (
                         <li key={item.id}>
                             <div className="diamond-info">
-                                <img src={item.imageUrl || '/images/diamond-placeholder.jpg'} alt={item.title} />
+                                <img src={item.imageUrl || '/images/diamond-placeholder.jpg'} alt={item.title}/>
                                 <div className="info">
-                                    <span>{item.title} - {item.carat} ct - ${item.price}</span>
-                                    <span>Cut: {item.cut} | Clarity: {item.clarity} | Status: {item.status}</span>
+                                    <span>
+                                        <strong>{item.title}</strong> - {item.carat} ct - {item.cut || 'No cut specified'}
+                                    </span>
+                                    <span>
+                                        {item.description ? item.description : 'No description provided'}
+                                    </span>
+                                    <span>${item.price} ({item.status})</span>
+                                    <span>Clarity: {item.clarity} | Color: {item.color}</span>
                                 </div>
                             </div>
                             <div className="actions">
-                                <button className="edit-btn" onClick={() => handleEditClick(item)}>Edit</button>
+                                <button className="edit-btn" onClick={() => handleEdit(item.id)}>Edit</button>
                                 <button className="delete-btn" onClick={() => handleDelete(item.id)}>Delete</button>
                                 <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)}>
                                     <option value="Available">Available</option>
@@ -269,117 +282,114 @@ export default function SellerDashboard() {
                 </ul>
             </section>
             <style jsx>{`
-        h1, h2 {
-          text-align: center;
-          color: #333;
-        }
-        .error {
-          color: red;
-          text-align: center;
-          margin-bottom: 10px;
-        }
-        form {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-          margin-bottom: 20px;
-        }
-        .form-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          justify-content: center;
-        }
-        input, select {
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          flex: 1 1 150px;
-          font-size: 16px;
-        }
-        .image-preview {
-          text-align: center;
-          margin-top: 10px;
-        }
-        .image-preview img {
-          max-width: 200px;
-          max-height: 200px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-        }
-        .btn {
-          align-self: center;
-          padding: 12px 24px;
-          background: #a67c52;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background 0.3s;
-          margin: 5px;
-        }
-        .btn:hover {
-          background: #8c6234;
-        }
-        .btn.cancel {
-          background: #aaa;
-        }
-        ul {
-          list-style: none;
-          padding: 0;
-        }
-        li {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding: 10px;
-          border-bottom: 1px solid #ddd;
-        }
-        .diamond-info {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          align-items: center;
-        }
-        .diamond-info img {
-          width: 100px;
-          height: 100px;
-          object-fit: cover;
-          border-radius: 4px;
-          border: 1px solid #ccc;
-        }
-        .info {
-          flex: 1;
-        }
-        .actions {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        .edit-btn, .delete-btn {
-          padding: 6px 12px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-        .edit-btn {
-          background: #4CAF50;
-          color: #fff;
-        }
-        .edit-btn:hover {
-          background: #45a049;
-        }
-        .delete-btn {
-          background: #f44336;
-          color: #fff;
-        }
-        .delete-btn:hover {
-          background: #da190b;
-        }
-      `}</style>
+                h1, h2 {
+                    text-align: center;
+                    color: #333;
+                }
+                .error {
+                    color: red;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+                form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                }
+                .form-row {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    justify-content: center;
+                }
+                input, select, textarea {
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    flex: 1 1 150px;
+                    font-size: 16px;
+                }
+                .image-preview {
+                    text-align: center;
+                    margin-top: 10px;
+                }
+                .image-preview img {
+                    max-width: 200px;
+                    max-height: 200px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                }
+                .btn {
+                    align-self: center;
+                    padding: 12px 24px;
+                    background: #a67c52;
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: background 0.3s;
+                    margin: 5px;
+                }
+                .btn:hover {
+                    background: #8c6234;
+                }
+                ul {
+                    list-style: none;
+                    padding: 0;
+                }
+                li {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    padding: 10px;
+                    border-bottom: 1px solid #ddd;
+                }
+                .diamond-info {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    align-items: center;
+                }
+                .diamond-info img {
+                    width: 100px;
+                    height: 100px;
+                    object-fit: cover;
+                    border-radius: 4px;
+                    border: 1px solid #ccc;
+                }
+                .info {
+                    flex: 1;
+                }
+                .actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                }
+                .edit-btn, .delete-btn {
+                    padding: 6px 12px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background 0.3s;
+                }
+                .edit-btn {
+                    background: #4CAF50;
+                    color: #fff;
+                }
+                .edit-btn:hover {
+                    background: #45a049;
+                }
+                .delete-btn {
+                    background: #f44336;
+                    color: #fff;
+                }
+                .delete-btn:hover {
+                    background: #da190b;
+                }
+            `}</style>
         </Layout>
     );
 }

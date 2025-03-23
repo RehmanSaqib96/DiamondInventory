@@ -35,108 +35,150 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="navbar">
-            <div className="logo">
-                <Link href="/" className="logo-link">DiamondStore</Link>
+        <header className="navbar">
+            <div className="nav-left">
+                {/* Brand/Logo in a serif font */}
+                <Link href="/" className="logo">
+                    DiamondStore
+                </Link>
+                {/* Main menu */}
+                <nav className="menu">
+                    <Link href="/listings">Shop Diamonds</Link>
+                    <Link href="/sell">Sell Your Diamonds</Link>
+                    <Link href="/wishlist">Wishlist</Link>
+                    {/* Show Seller Dashboard if user.role === 'seller' */}
+                    {user && user.role === 'seller' && (
+                        <Link href="/seller-dashboard">Seller Dashboard</Link>
+                    )}
+                </nav>
             </div>
-            <ul className="nav-links">
-                <li><Link href="/listings">Shop Diamonds</Link></li>
-                <li><Link href="/sell">Sell Your Diamonds</Link></li>
-                <li><Link href="/wishlist">Wishlist</Link></li>
-                {/* If user is logged in as seller, show dashboard */}
-                {user && user.role === 'seller' && (
-                    <li><Link href="/seller-dashboard">Seller Dashboard</Link></li>
-                )}
-            </ul>
-            <div className="nav-actions">
-                {user ? (
-                    <div className="dropdown">
-                        <span className="account-label">{user.name || user.email || 'Unknown User'}</span>
-                        <div className="dropdown-content">
-                            <Link href="/profile">Profile</Link>
-                            <button onClick={handleLogout}>Logout</button>
+
+            <div className="nav-right">
+                {/* Icons: Search, Currency, Cart */}
+                <div className="icon search-icon">🔍</div>
+                <select className="currency-dropdown">
+                    <option value="GBP">GBP £</option>
+                    <option value="USD">USD $</option>
+                    <option value="EUR">EUR €</option>
+                </select>
+                <div className="icon cart-icon">🛍️</div>
+
+                {/* Account / Login */}
+                <div className="account-container">
+                    {user ? (
+                        <div className="account-dropdown">
+                            <div className="icon account-icon">👤</div>
+                            <div className="dropdown-content">
+                                <Link href="/profile">Profile</Link>
+                                <button onClick={handleLogout}>Logout</button>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <>
-                        <Link href="/login" className="nav-btn">Login</Link>
-                        <Link href="/register" className="nav-btn signup">Sign Up</Link>
-                    </>
-                )}
+                    ) : (
+                        <div className="account-dropdown">
+                            <div className="icon account-icon">👤</div>
+                            <div className="dropdown-content">
+                                <Link href="/login">Login</Link>
+                                <Link href="/register">Sign Up</Link>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Book an Appointment Button in soft pink */}
+                <button className="appointment-btn">Book an Appointment</button>
             </div>
+
             <style jsx>{`
+        /* Container */
         .navbar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 20px 40px;
-          background: #fff;
+          padding: 10px 40px;
           border-bottom: 1px solid #eee;
+          background: #fff;
           position: sticky;
           top: 0;
-          z-index: 1000;
+          z-index: 999;
         }
-        .logo-link {
-          font-size: 24px;
-          font-weight: bold;
-          color: #333;
+        /* Left Side: Logo + Menu */
+        .nav-left {
+          display: flex;
+          align-items: center;
+          gap: 40px;
+        }
+        .logo {
+          font-family: 'EB Garamond', serif; /* Example serif font */
+          font-size: 28px;
+          font-weight: 500;
           text-decoration: none;
+          color: #000;
         }
-        .nav-links {
-          list-style: none;
+        .menu {
           display: flex;
           gap: 20px;
         }
-        .nav-links li a {
-          color: #333;
+        .menu a {
           text-decoration: none;
+          color: #333;
+          font-size: 16px;
           transition: color 0.3s;
         }
-        .nav-links li a:hover {
-          color: #a67c52;
+        .menu a:hover {
+          color: #a67c52; /* Soft gold/brown accent */
         }
-        .nav-actions {
+        /* Right Side: Icons + Appointment Button */
+        .nav-right {
           display: flex;
-          gap: 10px;
           align-items: center;
+          gap: 20px;
         }
-        .nav-btn {
+        .icon {
+          cursor: pointer;
+          font-size: 18px;
+        }
+        .currency-dropdown {
+          padding: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 14px;
+        }
+        .appointment-btn {
           padding: 8px 16px;
-          background: #a67c52;
-          color: #fff;
+          background: #f8d3d3; /* Soft pink color */
+          color: #333;
           border: none;
           border-radius: 4px;
-          text-decoration: none;
+          font-size: 14px;
+          cursor: pointer;
           transition: background 0.3s;
-          cursor: pointer;
         }
-        .nav-btn:hover {
-          background: #8c6234;
+        .appointment-btn:hover {
+          background: #f4c0c0;
         }
-        .nav-btn.signup {
-          background: #fff;
-          color: #a67c52;
-          border: 1px solid #a67c52;
-        }
-        .dropdown {
+        /* Account Dropdown */
+        .account-container {
           position: relative;
-          cursor: pointer;
         }
-        .account-label {
-          font-weight: bold;
-          color: #333;
+        .account-dropdown {
+          position: relative;
+        }
+        .account-icon {
+          font-size: 18px;
         }
         .dropdown-content {
           display: none;
           position: absolute;
           right: 0;
+          top: 30px;
           background: #fff;
           box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
           padding: 10px;
           border-radius: 4px;
-          min-width: 150px;
+          min-width: 120px;
+          text-align: left;
         }
-        .dropdown:hover .dropdown-content {
+        .account-dropdown:hover .dropdown-content {
           display: block;
         }
         .dropdown-content a,
@@ -148,14 +190,15 @@ export default function Navbar() {
           background: none;
           border: none;
           cursor: pointer;
-          text-align: left;
           width: 100%;
+          text-align: left;
+          font-size: 14px;
         }
         .dropdown-content a:hover,
         .dropdown-content button:hover {
           color: #a67c52;
         }
       `}</style>
-        </nav>
+        </header>
     );
 }

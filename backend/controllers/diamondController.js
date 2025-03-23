@@ -88,6 +88,7 @@ exports.bulkUpload = async (req, res) => {
                     description: record.description,
                     price: parseFloat(record.price),
                     carat: parseFloat(record.carat),
+                    cut: record.cut,
                     color: record.color,
                     clarity: record.clarity,
                     sellerId: req.user.id

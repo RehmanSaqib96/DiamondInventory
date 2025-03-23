@@ -7,6 +7,7 @@ const Diamond = sequelize.define('Diamond', {
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
     price: DataTypes.FLOAT,
+    cut: DataTypes.STRING,
     carat: DataTypes.FLOAT,
     color: DataTypes.STRING,
     clarity: DataTypes.STRING,

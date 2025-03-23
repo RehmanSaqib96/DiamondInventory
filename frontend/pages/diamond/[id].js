@@ -39,7 +39,7 @@ export default function DiamondDetails() {
                 </div>
                 <div className="info-section">
                     <h1>{diamond.title}</h1>
-                    <p>{diamond.carat} ct - ${diamond.price}</p>
+                    <p>{diamond.carat} ct - £{diamond.price} - {diamond.cut}</p>
                     <p>{diamond.description}</p>
                     <p><strong>Certifications:</strong> {diamond.certifications}</p>
                     <p><strong>Seller:</strong> {diamond.seller}</p>
