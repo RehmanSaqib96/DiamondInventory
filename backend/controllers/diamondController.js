@@ -15,14 +15,27 @@ exports.getAllDiamondsPublic = async (req, res) => {
 
 exports.createDiamond = async (req, res) => {
     try {
-        const { title, description, price, carat, color, clarity } = req.body;
+        const { title, description, price, carat, color, clarity, cut, certification, status, imageUrl } = req.body;
         const sellerId = req.user.id;
-        const diamond = await Diamond.create({ title, description, price, carat, color, clarity, sellerId });
+        const diamond = await Diamond.create({
+            title,
+            description,
+            price,
+            carat,
+            color,
+            clarity,
+            cut,
+            certification,
+            status,
+            imageUrl,
+            sellerId
+        });
         res.status(201).json(diamond);
     } catch (error) {
         res.status(500).json({ message: 'Error creating diamond', error });
     }
 };
+
 
 exports.getAllDiamonds = async (req, res) => {
     try {
@@ -91,7 +104,9 @@ exports.bulkUpload = async (req, res) => {
                     cut: record.cut,
                     color: record.color,
                     clarity: record.clarity,
-                    sellerId: req.user.id
+                    sellerId: req.user.id,
+                    certification: record.certification,
+                    status: record.status,
                 }));
                 const createdDiamonds = await Promise.all(
                     diamondsData.map(data => Diamond.create(data))

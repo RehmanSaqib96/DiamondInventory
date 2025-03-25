@@ -5,22 +5,31 @@ import Layout from '../components/Layout';
 export default function SellerDashboard() {
     const [formData, setFormData] = useState({
         title: '',
-        carat: '',
         description: '',
+        carat: '',
         cut: 'Brilliant',
         color: '',
         clarity: 'IF',
         price: '',
-        imageUrl: '', // URL returned after uploading
-        status: 'Available'
+        imageUrl: '',
+        status: 'Available',
+        certification: 'GIA', // Default certification
     });
-    const [imageFile, setImageFile] = useState(null); // For file upload
+    const [imageFile, setImageFile] = useState(null);
     const [inventory, setInventory] = useState([]);
     const [errorMsg, setErrorMsg] = useState('');
 
-    // Preset options for cut and clarity
+    // Preset options for cut, clarity, and certification
     const cutOptions = ['Brilliant', 'Princess', 'Emerald', 'Oval', 'Radiant', 'Asscher'];
     const clarityOptions = ['IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1'];
+
+    // Each object has a short form (value) and a label (short + full form)
+    const certificationOptions = [
+        { value: 'GIA', label: 'GIA (Gemological Institute of America)' },
+        { value: 'IGI', label: 'IGI (International Gemological Institute)' },
+        { value: 'HRD', label: 'HRD (Hoge Raad voor Diamant)' },
+        { value: 'EGL', label: 'EGL (European Gemological Laboratory)' },
+    ];
 
     // Fetch inventory from backend
     const fetchInventory = async () => {
@@ -45,24 +54,26 @@ export default function SellerDashboard() {
         fetchInventory();
     }, []);
 
+// Updated handleChange to log state changes
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        console.log(`Field ${e.target.name} changed to:`, e.target.value);
+        setFormData({...formData, [e.target.name]: e.target.value});
     };
 
-    // Handle file input change for image upload
+// Handler for file input remains unchanged
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    // Add a new diamond: First, if an image file is provided, upload it
+    // Updated handleAddDiamond with explicit diamondData construction and debug logs
     const handleAddDiamond = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('accessToken');
-        let imageUrl = formData.imageUrl; // fallback if file upload is not used
+        let imageUrl = formData.imageUrl; // fallback if no file is uploaded
 
-        // If an image file is selected, use FormData to upload it
+        // If an image file is selected, upload it
         if (imageFile) {
             const uploadData = new FormData();
             uploadData.append('file', imageFile);
@@ -74,7 +85,7 @@ export default function SellerDashboard() {
                 });
                 if (uploadRes.ok) {
                     const uploadDataRes = await uploadRes.json();
-                    imageUrl = uploadDataRes.url; // Assume backend returns the URL in { url: "..." }
+                    imageUrl = uploadDataRes.url;
                 } else {
                     setErrorMsg('Failed to upload image.');
                     return;
@@ -86,8 +97,23 @@ export default function SellerDashboard() {
             }
         }
 
-        // Prepare diamond data, replacing image field with the uploaded imageUrl
-        const diamondData = { ...formData, imageUrl };
+        // Explicitly construct the diamondData object
+        const diamondData = {
+            title: formData.title,
+            description: formData.description,
+            carat: parseFloat(formData.carat),
+            cut: formData.cut, // This should now reflect the updated value from the dropdown
+            color: formData.color,
+            clarity: formData.clarity,
+            price: parseFloat(formData.price),
+            imageUrl,
+            status: formData.status,
+            certification: formData.certification // This comes from your certification dropdown
+            // You can add sellerId if needed: sellerId: loggedInUser.id
+        };
+
+        // Log the diamondData to verify the field values
+        console.log('Diamond Data to be sent:', diamondData);
 
         try {
             const res = await fetch('http://localhost:5000/diamonds', {
@@ -100,16 +126,18 @@ export default function SellerDashboard() {
             });
             if (res.ok) {
                 fetchInventory();
+                // Reset form fields
                 setFormData({
                     title: '',
-                    carat: '',
                     description: '',
+                    carat: '',
                     cut: 'Brilliant',
                     color: '',
                     clarity: 'IF',
                     price: '',
                     imageUrl: '',
-                    status: 'Available'
+                    status: 'Available',
+                    certification: 'GIA'  // default value
                 });
                 setImageFile(null);
             } else {
@@ -122,7 +150,7 @@ export default function SellerDashboard() {
         }
     };
 
-    // Edit a diamond
+
     const handleEdit = async (id) => {
         const newTitle = prompt("Enter new title:");
         if (!newTitle) return;
@@ -148,7 +176,6 @@ export default function SellerDashboard() {
         }
     };
 
-    // Delete a diamond
     const handleDelete = async (id) => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -168,7 +195,6 @@ export default function SellerDashboard() {
         }
     };
 
-    // Update diamond status
     const handleStatusChange = async (id, newStatus) => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -196,12 +222,26 @@ export default function SellerDashboard() {
         <Layout>
             <h1>Seller Dashboard</h1>
             {errorMsg && <p className="error">{errorMsg}</p>}
+
+            {/* Add Diamond Form */}
             <section className="add-diamond">
                 <h2>Add New Diamond</h2>
                 <form onSubmit={handleAddDiamond}>
                     <div className="form-row">
-                        <input name="title" placeholder="Title" value={formData.title} onChange={handleChange} required />
-                        <input name="carat" placeholder="Carat" value={formData.carat} onChange={handleChange} required />
+                        <input
+                            name="title"
+                            placeholder="Title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            name="carat"
+                            placeholder="Carat"
+                            value={formData.carat}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
                     <div className="form-row">
                         <select name="cut" value={formData.cut} onChange={handleChange} required>
@@ -209,7 +249,13 @@ export default function SellerDashboard() {
                                 <option key={option} value={option}>{option}</option>
                             ))}
                         </select>
-                        <input name="color" placeholder="Color" value={formData.color} onChange={handleChange} required />
+                        <input
+                            name="color"
+                            placeholder="Color"
+                            value={formData.color}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
                     <div className="form-row">
             <textarea
@@ -226,7 +272,14 @@ export default function SellerDashboard() {
                                 <option key={option} value={option}>{option}</option>
                             ))}
                         </select>
-                        <input name="price" type="number" placeholder="Price" value={formData.price} onChange={handleChange} required />
+                        <input
+                            name="price"
+                            type="number"
+                            placeholder="Price"
+                            value={formData.price}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
                     <div className="form-row">
                         <input
@@ -242,14 +295,34 @@ export default function SellerDashboard() {
                             <option value="Reserved">Reserved</option>
                         </select>
                     </div>
+                    {/* Single dropdown for certification */}
+                    <div className="form-row">
+                        <select
+                            name="certification"
+                            value={formData.certification}
+                            onChange={handleChange}
+                            style={{ flex: '1 1 100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        >
+                            {certificationOptions.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="image-preview">
                         {(formData.imageUrl || imageFile) && (
-                            <img src={imageFile ? URL.createObjectURL(imageFile) : formData.imageUrl} alt="Image Preview" />
+                            <img
+                                src={imageFile ? URL.createObjectURL(imageFile) : formData.imageUrl}
+                                alt="Image Preview"
+                            />
                         )}
                     </div>
                     <button type="submit" className="btn">Add Diamond</button>
                 </form>
             </section>
+
+            {/* Inventory List */}
             <section className="inventory">
                 <h2>Your Inventory</h2>
                 <ul>
@@ -258,20 +331,32 @@ export default function SellerDashboard() {
                             <div className="diamond-info">
                                 <img src={item.imageUrl || '/images/diamond-placeholder.jpg'} alt={item.title}/>
                                 <div className="info">
-                                    <span>
-                                        <strong>{item.title}</strong> - {item.carat} ct - {item.cut || 'No cut specified'}
-                                    </span>
-                                    <span>
+                                    <p>
+                                        <strong>{item.title}</strong> — {item.carat} ct — {item.cut || 'No cut specified'}
+                                    </p>
+                                    <p>
+                                        Price: £{item.price}
+                                        {item.status ? ` (${item.status})` : ''}
+                                        {/* Only show parentheses if status is not empty */}
+                                    </p>
+                                    <p>
+                                        Clarity: {item.clarity} | Color: {item.color}
+                                    </p>
+                                    <p>
+                                        Certification: {item.certification || 'None'}
+                                    </p>
+                                    <p>
                                         {item.description ? item.description : 'No description provided'}
-                                    </span>
-                                    <span>${item.price} ({item.status})</span>
-                                    <span>Clarity: {item.clarity} | Color: {item.color}</span>
+                                    </p>
                                 </div>
                             </div>
                             <div className="actions">
                                 <button className="edit-btn" onClick={() => handleEdit(item.id)}>Edit</button>
                                 <button className="delete-btn" onClick={() => handleDelete(item.id)}>Delete</button>
-                                <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)}>
+                                <select
+                                    value={item.status}
+                                    onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                >
                                     <option value="Available">Available</option>
                                     <option value="Sold">Sold</option>
                                     <option value="Reserved">Reserved</option>
@@ -281,6 +366,7 @@ export default function SellerDashboard() {
                     ))}
                 </ul>
             </section>
+
             <style jsx>{`
                 h1, h2 {
                     text-align: center;

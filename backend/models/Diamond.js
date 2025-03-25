@@ -11,7 +11,16 @@ const Diamond = sequelize.define('Diamond', {
     carat: DataTypes.FLOAT,
     color: DataTypes.STRING,
     clarity: DataTypes.STRING,
-    sellerId: DataTypes.INTEGER
+    sellerId: DataTypes.INTEGER,
+    certification: {  // Model property is singular
+        type: DataTypes.STRING,
+        field: 'certifications'  // Maps to the plural column in DB
+    },
+    status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'Available'
+    },
 });
 
 module.exports = Diamond;

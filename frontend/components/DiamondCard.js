@@ -6,7 +6,7 @@ export default function DiamondCard({ diamond }) {
         <div className="diamond-card">
             <img src={diamond.imageUrl || '/images/diamond-placeholder.jpg'} alt={diamond.title} />
             <h3>{diamond.title}</h3>
-            <p>{diamond.carat} ct - ${diamond.price}</p>
+            <p>{diamond.carat} ct - £{diamond.price}</p>
             <p>Cut: {diamond.cut} | Clarity: {diamond.clarity}</p>
             <p>Status: {diamond.status}</p>
             <Link href={`/diamond/${diamond.id}`} className="view-btn">View Details</Link>
