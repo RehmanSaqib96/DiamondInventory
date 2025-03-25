@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
         }
 
         // 3. Generate JWT (ensure that JWT_SECRET is the same as used in your verifyToken middleware)
-        const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
 
         // 4. Return the token and the user object, including the name
         res.json({

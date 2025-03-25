@@ -12,6 +12,7 @@ const diamondRoutes = require('./routes/diamonds');
 const orderRoutes = require('./routes/orders');
 const wishlistRoutes = require('./routes/wishlist');
 const adminRoutes = require('./routes/admin');
+const inquiriesRoutes = require('./routes/inquiries');
 
 // Middleware
 app.use(cors());
@@ -25,6 +26,7 @@ app.use('/orders', orderRoutes);
 app.use('/wishlist', wishlistRoutes);
 app.use('/admin', adminRoutes);
 app.use('/upload', require('./routes/upload'));
+app.use('/inquiries', inquiriesRoutes);
 
 // Test DB connection & sync models
 sequelize.authenticate()

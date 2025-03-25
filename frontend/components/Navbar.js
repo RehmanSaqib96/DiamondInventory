@@ -45,10 +45,19 @@ export default function Navbar() {
                 {/* Main menu */}
                 <nav className="menu">
                     <Link href="/listings">Shop Diamonds</Link>
-                    <Link href="/sell">Sell Your Diamonds</Link>
-                    <Link href="/wishlist">Wishlist</Link>
-                    {user && user.role === 'seller' && (
-                        <Link href="/seller-dashboard">Seller Dashboard</Link>
+
+                    {user && user.role === 'seller' ? (
+                        <>
+                            {/* Links only for seller (admin) */}
+                            <Link href="/inquiries">Buyer Inquiries</Link>
+                            <Link href="/seller-dashboard">Seller Dashboard</Link>
+                        </>
+                    ) : (
+                        <>
+                            {/* Links only for buyers or not logged in */}
+                            <Link href="/sell">Sell Your Diamonds</Link>
+                            <Link href="/wishlist">Wishlist</Link>
+                        </>
                     )}
                 </nav>
             </div>
