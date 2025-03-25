@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import AccountDropdown from './AccountDropdown';
 
 export default function Navbar() {
     const [user, setUser] = useState(null);
@@ -46,7 +47,6 @@ export default function Navbar() {
                     <Link href="/listings">Shop Diamonds</Link>
                     <Link href="/sell">Sell Your Diamonds</Link>
                     <Link href="/wishlist">Wishlist</Link>
-                    {/* Show Seller Dashboard if user.role === 'seller' */}
                     {user && user.role === 'seller' && (
                         <Link href="/seller-dashboard">Seller Dashboard</Link>
                     )}
@@ -63,142 +63,80 @@ export default function Navbar() {
                 </select>
                 <div className="icon cart-icon">🛍️</div>
 
-                {/* Account / Login */}
-                <div className="account-container">
-                    {user ? (
-                        <div className="account-dropdown">
-                            <div className="icon account-icon">👤</div>
-                            <div className="dropdown-content">
-                                <Link href="/profile">Profile</Link>
-                                <button onClick={handleLogout}>Logout</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="account-dropdown">
-                            <div className="icon account-icon">👤</div>
-                            <div className="dropdown-content">
-                                <Link href="/login">Login</Link>
-                                <Link href="/register">Sign Up</Link>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                {/* Use the click-based AccountDropdown */}
+                <AccountDropdown user={user} handleLogout={handleLogout} />
 
-                {/* Book an Appointment Button in soft pink */}
+                {/* Book an Appointment Button */}
                 <button className="appointment-btn">Book an Appointment</button>
             </div>
 
             <style jsx>{`
-        /* Container */
-        .navbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px 40px;
-          border-bottom: 1px solid #eee;
-          background: #fff;
-          position: sticky;
-          top: 0;
-          z-index: 999;
-        }
-        /* Left Side: Logo + Menu */
-        .nav-left {
-          display: flex;
-          align-items: center;
-          gap: 40px;
-        }
-        .logo {
-          font-family: 'EB Garamond', serif; /* Example serif font */
-          font-size: 28px;
-          font-weight: 500;
-          text-decoration: none;
-          color: #000;
-        }
-        .menu {
-          display: flex;
-          gap: 20px;
-        }
-        .menu a {
-          text-decoration: none;
-          color: #333;
-          font-size: 16px;
-          transition: color 0.3s;
-        }
-        .menu a:hover {
-          color: #a67c52; /* Soft gold/brown accent */
-        }
-        /* Right Side: Icons + Appointment Button */
-        .nav-right {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-        .icon {
-          cursor: pointer;
-          font-size: 18px;
-        }
-        .currency-dropdown {
-          padding: 5px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-        .appointment-btn {
-          padding: 8px 16px;
-          background: #f8d3d3; /* Soft pink color */
-          color: #333;
-          border: none;
-          border-radius: 4px;
-          font-size: 14px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-        .appointment-btn:hover {
-          background: #f4c0c0;
-        }
-        /* Account Dropdown */
-        .account-container {
-          position: relative;
-        }
-        .account-dropdown {
-          position: relative;
-        }
-        .account-icon {
-          font-size: 18px;
-        }
-        .dropdown-content {
-          display: none;
-          position: absolute;
-          right: 0;
-          top: 30px;
-          background: #fff;
-          box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-          padding: 10px;
-          border-radius: 4px;
-          min-width: 120px;
-          text-align: left;
-        }
-        .account-dropdown:hover .dropdown-content {
-          display: block;
-        }
-        .dropdown-content a,
-        .dropdown-content button {
-          display: block;
-          margin: 5px 0;
-          color: #333;
-          text-decoration: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-          width: 100%;
-          text-align: left;
-          font-size: 14px;
-        }
-        .dropdown-content a:hover,
-        .dropdown-content button:hover {
-          color: #a67c52;
-        }
-      `}</style>
+                .navbar {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px 40px;
+                    background: #fff;
+                    border-bottom: 1px solid #eee;
+                    position: sticky;
+                    top: 0;
+                    z-index: 1000;
+                }
+                .nav-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 40px;
+                }
+                .logo {
+                    font-family: 'EB Garamond', serif;
+                    font-size: 28px;
+                    font-weight: 500;
+                    text-decoration: none;
+                    color: #000;
+                }
+                .menu {
+                    display: flex;
+                    gap: 20px;
+                }
+                .menu a {
+                    text-decoration: none;
+                    color: #333;
+                    font-size: 16px;
+                    transition: color 0.3s;
+                }
+                .menu a:hover {
+                    color: #a67c52;
+                }
+                .nav-right {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                }
+                .icon {
+                    cursor: pointer;
+                    font-size: 18px;
+                }
+                .currency-dropdown {
+                    padding: 5px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    font-size: 14px;
+                }
+                .appointment-btn {
+                    padding: 8px 16px;
+                    background: #f8d3d3;
+                    color: #333;
+                    border: none;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: background 0.3s;
+                }
+                .appointment-btn:hover {
+                    background: #f4c0c0;
+                }
+            `}</style>
         </header>
     );
 }
+
