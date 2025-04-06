@@ -10,9 +10,9 @@ const port = process.env.PORT || 5000;
 const authRoutes = require('./routes/auth');
 const diamondRoutes = require('./routes/diamonds');
 const orderRoutes = require('./routes/orders');
-const wishlistRoutes = require('./routes/wishlist');
 const adminRoutes = require('./routes/admin');
 const inquiriesRoutes = require('./routes/inquiries');
+const wishlistRoutes = require('./routes/wishlist');
 
 // Middleware
 app.use(cors());
@@ -23,10 +23,10 @@ app.use('/uploads', express.static('uploads'));
 app.use('/auth', authRoutes);
 app.use('/diamonds', diamondRoutes);
 app.use('/orders', orderRoutes);
-app.use('/wishlist', wishlistRoutes);
 app.use('/admin', adminRoutes);
 app.use('/upload', require('./routes/upload'));
 app.use('/inquiries', inquiriesRoutes);
+app.use('/wishlist', wishlistRoutes);
 
 // Test DB connection & sync models
 sequelize.authenticate()

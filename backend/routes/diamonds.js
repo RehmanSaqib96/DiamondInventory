@@ -8,11 +8,11 @@ const upload = multer({ dest: 'uploads/' });
 
 // PUBLIC: For homepage listing
 router.get('/public', diamondController.getAllDiamondsPublic);
+router.get('/:id', diamondController.getDiamondById);
 
 // PROTECTED: Seller endpoints
 router.post('/', verifyToken, isSeller, diamondController.createDiamond);
 router.get('/', verifyToken, diamondController.getAllDiamonds); // if you want sellers to see them
-router.get('/:id', verifyToken, diamondController.getDiamondById);
 router.put('/:id', verifyToken, isSeller, diamondController.updateDiamond);
 router.delete('/:id', verifyToken, isSeller, diamondController.deleteDiamond);
 router.post('/bulk-upload', verifyToken, isSeller, upload.single('file'), diamondController.bulkUpload);

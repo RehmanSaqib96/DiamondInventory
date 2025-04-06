@@ -1,11 +1,24 @@
-// backend/models/Wishlist.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const Diamond = require('./Diamond');
 
 const Wishlist = sequelize.define('Wishlist', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    buyerId: DataTypes.INTEGER,
-    diamondId: DataTypes.INTEGER
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    buyerId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    diamondId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    }
 });
+
+// Define the association: a Wishlist record belongs to a Diamond
+Wishlist.belongsTo(Diamond, { foreignKey: 'diamondId', as: 'diamond' });
 
 module.exports = Wishlist;

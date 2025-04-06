@@ -59,6 +59,7 @@ export default function Navbar() {
                             <Link href="/wishlist">Wishlist</Link>
                         </>
                     )}
+                    <Link href="/about">About Us</Link>
                 </nav>
             </div>
 

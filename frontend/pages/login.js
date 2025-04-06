@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Layout from '../components/Layout'; // Adjust path if needed
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -50,7 +51,7 @@ export default function Login() {
     };
 
     return (
-        <>
+        <Layout>
             <Head>
                 <title>Login | DiamondStore</title>
                 <meta name="description" content="Login to your DiamondStore account" />
@@ -90,72 +91,73 @@ export default function Login() {
                     </Link>
                 </p>
             </div>
+
             <style jsx>{`
-                .login-container {
-                    max-width: 400px;
-                    margin: 50px auto;
-                    padding: 40px;
-                    border: 1px solid #eee;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                    text-align: center;
-                    background: #fff;
-                }
-                h2 {
-                    margin-bottom: 20px;
-                    font-size: 28px;
-                    color: #333;
-                }
-                form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 15px;
-                }
-                input {
-                    padding: 12px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    font-size: 16px;
-                }
-                .btn {
-                    padding: 12px;
-                    background: #a67c52;
-                    color: #fff;
-                    border: none;
-                    border-radius: 4px;
-                    font-size: 16px;
-                    cursor: pointer;
-                    transition: background 0.3s;
-                }
-                .btn:hover {
-                    background: #8c6234;
-                }
-                .link-group {
-                    text-align: right;
-                }
-                .link {
-                    color: #a67c52;
-                    text-decoration: none;
-                    font-size: 14px;
-                }
-                .link:hover {
-                    text-decoration: underline;
-                }
-                .signup-text {
-                    margin-top: 20px;
-                    font-size: 14px;
-                }
-                .error {
-                    color: red;
-                    margin-bottom: 10px;
-                }
-                @media (max-width: 768px) {
-                    .login-container {
-                        margin: 20px;
-                        padding: 20px;
-                    }
-                }
-            `}</style>
-        </>
+        .login-container {
+          max-width: 400px;
+          margin: 50px auto;
+          padding: 40px;
+          border: 1px solid #eee;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          text-align: center;
+          background: #fff;
+        }
+        h2 {
+          margin-bottom: 20px;
+          font-size: 28px;
+          color: #333;
+        }
+        form {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
+        input {
+          padding: 12px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 16px;
+        }
+        .btn {
+          padding: 12px;
+          background: #a67c52;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background 0.3s;
+        }
+        .btn:hover {
+          background: #8c6234;
+        }
+        .link-group {
+          text-align: right;
+        }
+        .link {
+          color: #a67c52;
+          text-decoration: none;
+          font-size: 14px;
+        }
+        .link:hover {
+          text-decoration: underline;
+        }
+        .signup-text {
+          margin-top: 20px;
+          font-size: 14px;
+        }
+        .error {
+          color: red;
+          margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+          .login-container {
+            margin: 20px;
+            padding: 20px;
+          }
+        }
+      `}</style>
+        </Layout>
     );
 }
