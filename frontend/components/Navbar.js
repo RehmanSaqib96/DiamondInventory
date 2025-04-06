@@ -50,7 +50,8 @@ export default function Navbar() {
                         <>
                             {/* Links only for seller (admin) */}
                             <Link href="/inquiries">Buyer Inquiries</Link>
-                            <Link href="/seller-dashboard">Seller Dashboard</Link>
+                            <Link href="/seller-dashboard">Diamond Dashboard</Link>
+                            <Link href="/admin-dashboard">Roles</Link>
                         </>
                     ) : (
                         <>

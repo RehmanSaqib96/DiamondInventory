@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Layout from '../components/Layout';
 
 export default function Register() {
     const [name, setName] = useState('');
@@ -36,11 +37,11 @@ export default function Register() {
     };
 
     return (
-        <>
+        <Layout>
             <Head>
                 <title>Register | DiamondStore</title>
-                <meta name="description" content="Register for a DiamondStore account" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="description" content="Register for a DiamondStore account"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
             </Head>
             <div className="register-container">
                 <h2>Register</h2>
@@ -89,89 +90,104 @@ export default function Register() {
                 </p>
             </div>
             <style jsx>{`
-        .register-container {
-          max-width: 400px;
-          margin: 50px auto;
-          padding: 40px;
-          border: 1px solid #eee;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-          text-align: center;
-          background: #fff;
-        }
-        h2 {
-          margin-bottom: 20px;
-          font-size: 28px;
-          color: #333;
-        }
-        form {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-          padding: 12px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          font-size: 16px;
-        }
-        .terms {
-          display: flex;
-          align-items: center;
-          font-size: 14px;
-          color: #666;
-        }
-        .terms input {
-          margin-right: 8px;
-        }
-        .terms a {
-          color: #a67c52;
-          text-decoration: none;
-        }
-        .terms a:hover {
-          text-decoration: underline;
-        }
-        .btn {
-          padding: 12px;
-          background: #a67c52;
-          color: #fff;
-          border: none;
-          border-radius: 4px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-        .btn:hover {
-          background: #8c6234;
-        }
-        .error {
-          color: red;
-          margin-bottom: 10px;
-        }
-        .success {
-          color: green;
-          margin-bottom: 10px;
-        }
-        .login-text {
-          margin-top: 20px;
-          font-size: 14px;
-        }
-        .login-text a {
-          color: #a67c52;
-          text-decoration: none;
-        }
-        .login-text a:hover {
-          text-decoration: underline;
-        }
-        @media (max-width: 768px) {
-          .register-container {
-            margin: 20px;
-            padding: 20px;
-          }
-        }
-      `}</style>
-        </>
+                .register-container {
+                    max-width: 400px;
+                    margin: 50px auto;
+                    padding: 40px;
+                    border: 1px solid #eee;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                    text-align: center;
+                    background: #fff;
+                }
+
+                h2 {
+                    margin-bottom: 20px;
+                    font-size: 28px;
+                    color: #333;
+                }
+
+                form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                input[type="text"],
+                input[type="email"],
+                input[type="password"] {
+                    padding: 12px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    font-size: 16px;
+                }
+
+                .terms {
+                    display: flex;
+                    align-items: center;
+                    font-size: 14px;
+                    color: #666;
+                }
+
+                .terms input {
+                    margin-right: 8px;
+                }
+
+                .terms a {
+                    color: #a67c52;
+                    text-decoration: none;
+                }
+
+                .terms a:hover {
+                    text-decoration: underline;
+                }
+
+                .btn {
+                    padding: 12px;
+                    background: #a67c52;
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: background 0.3s;
+                }
+
+                .btn:hover {
+                    background: #8c6234;
+                }
+
+                .error {
+                    color: red;
+                    margin-bottom: 10px;
+                }
+
+                .success {
+                    color: green;
+                    margin-bottom: 10px;
+                }
+
+                .login-text {
+                    margin-top: 20px;
+                    font-size: 14px;
+                }
+
+                .login-text a {
+                    color: #a67c52;
+                    text-decoration: none;
+                }
+
+                .login-text a:hover {
+                    text-decoration: underline;
+                }
+
+                @media (max-width: 768px) {
+                    .register-container {
+                        margin: 20px;
+                        padding: 20px;
+                    }
+                }
+            `}</style>
+        </Layout>
     );
 }
