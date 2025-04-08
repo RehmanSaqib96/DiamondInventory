@@ -5,7 +5,9 @@ const Diamond = require('../models/Diamond');
 
 exports.getAllDiamondsPublic = async (req, res) => {
     try {
-        const diamonds = await Diamond.findAll();
+        const diamonds = await Diamond.findAll({
+            order: [['createdAt', 'ASC']]  // Sort by creation time in ascending order
+        });
         res.json(diamonds);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching diamonds', error: error.message });

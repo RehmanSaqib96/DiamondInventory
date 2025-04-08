@@ -13,17 +13,19 @@ export default function SellerDashboard() {
         price: '',
         imageUrl: '',
         status: 'Available',
-        certification: 'GIA', // Default certification
+        certification: 'GIA',
     });
     const [imageFile, setImageFile] = useState(null);
     const [inventory, setInventory] = useState([]);
     const [errorMsg, setErrorMsg] = useState('');
 
+    // For inline editing: track the diamond being edited and the corresponding form data.
+    const [editingDiamondId, setEditingDiamondId] = useState(null);
+    const [editFormData, setEditFormData] = useState({});
+
     // Preset options for cut, clarity, and certification
     const cutOptions = ['Brilliant', 'Princess', 'Emerald', 'Oval', 'Radiant', 'Asscher'];
     const clarityOptions = ['IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1'];
-
-    // Each object has a short form (value) and a label (short + full form)
     const certificationOptions = [
         { value: 'GIA', label: 'GIA (Gemological Institute of America)' },
         { value: 'IGI', label: 'IGI (International Gemological Institute)' },
@@ -36,7 +38,7 @@ export default function SellerDashboard() {
         try {
             const token = localStorage.getItem('accessToken');
             const res = await fetch('http://localhost:5000/diamonds', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${token}` },
             });
             if (res.ok) {
                 const data = await res.json();
@@ -54,26 +56,25 @@ export default function SellerDashboard() {
         fetchInventory();
     }, []);
 
-// Updated handleChange to log state changes
+    // Handle add diamond inputs
     const handleChange = (e) => {
         console.log(`Field ${e.target.name} changed to:`, e.target.value);
-        setFormData({...formData, [e.target.name]: e.target.value});
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-// Handler for file input remains unchanged
+    // For file input change
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     };
 
-    // Updated handleAddDiamond with explicit diamondData construction and debug logs
+    // Handle adding a new diamond
     const handleAddDiamond = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('accessToken');
         let imageUrl = formData.imageUrl; // fallback if no file is uploaded
 
-        // If an image file is selected, upload it
         if (imageFile) {
             const uploadData = new FormData();
             uploadData.append('file', imageFile);
@@ -81,7 +82,7 @@ export default function SellerDashboard() {
                 const uploadRes = await fetch('http://localhost:5000/upload', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
-                    body: uploadData
+                    body: uploadData,
                 });
                 if (uploadRes.ok) {
                     const uploadDataRes = await uploadRes.json();
@@ -97,22 +98,19 @@ export default function SellerDashboard() {
             }
         }
 
-        // Explicitly construct the diamondData object
         const diamondData = {
             title: formData.title,
             description: formData.description,
             carat: parseFloat(formData.carat),
-            cut: formData.cut, // This should now reflect the updated value from the dropdown
+            cut: formData.cut,
             color: formData.color,
             clarity: formData.clarity,
             price: parseFloat(formData.price),
             imageUrl,
             status: formData.status,
-            certification: formData.certification // This comes from your certification dropdown
-            // You can add sellerId if needed: sellerId: loggedInUser.id
+            certification: formData.certification,
         };
 
-        // Log the diamondData to verify the field values
         console.log('Diamond Data to be sent:', diamondData);
 
         try {
@@ -120,13 +118,12 @@ export default function SellerDashboard() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(diamondData)
+                body: JSON.stringify(diamondData),
             });
             if (res.ok) {
                 fetchInventory();
-                // Reset form fields
                 setFormData({
                     title: '',
                     description: '',
@@ -137,7 +134,7 @@ export default function SellerDashboard() {
                     price: '',
                     imageUrl: '',
                     status: 'Available',
-                    certification: 'GIA'  // default value
+                    certification: 'GIA',
                 });
                 setImageFile(null);
             } else {
@@ -150,22 +147,56 @@ export default function SellerDashboard() {
         }
     };
 
+    // Inline edit: Set editing mode for a diamond
+    const startEditing = (diamond) => {
+        setEditingDiamondId(diamond.id);
+        setEditFormData({
+            title: diamond.title,
+            description: diamond.description,
+            carat: diamond.carat,
+            cut: diamond.cut,
+            color: diamond.color,
+            clarity: diamond.clarity,
+            price: diamond.price,
+            imageUrl: diamond.imageUrl,
+            status: diamond.status,
+            certification: diamond.certification,
+        });
+    };
 
-    const handleEdit = async (id) => {
-        const newTitle = prompt("Enter new title:");
-        if (!newTitle) return;
+    // Handle changes in the edit form
+    const handleEditChange = (e) => {
+        setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+    };
+
+    // Submit the edit form
+    const handleEditSubmit = async (e, diamondId) => {
+        e.preventDefault();
         const token = localStorage.getItem('accessToken');
         try {
-            const res = await fetch(`http://localhost:5000/diamonds/${id}`, {
+            const res = await fetch(`http://localhost:5000/diamonds/${diamondId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ title: newTitle })
+                body: JSON.stringify(editFormData),
             });
             if (res.ok) {
-                fetchInventory();
+                const updatedDiamond = await res.json(); // The server returns the updated diamond
+
+                // Update the diamond in your local inventory array
+                setInventory((prev) => {
+                    const newInventory = [...prev];
+                    const index = newInventory.findIndex((d) => d.id === diamondId);
+                    if (index !== -1) {
+                        newInventory[index] = updatedDiamond;
+                    }
+                    return newInventory;
+                });
+
+                setEditingDiamondId(null);
+                setEditFormData({});
             } else {
                 const data = await res.json();
                 setErrorMsg(data.message || 'Error updating diamond.');
@@ -181,7 +212,7 @@ export default function SellerDashboard() {
         try {
             const res = await fetch(`http://localhost:5000/diamonds/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${token}` },
             });
             if (res.ok) {
                 fetchInventory();
@@ -202,9 +233,9 @@ export default function SellerDashboard() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ status: newStatus }),
             });
             if (res.ok) {
                 fetchInventory();
@@ -295,7 +326,6 @@ export default function SellerDashboard() {
                             <option value="Reserved">Reserved</option>
                         </select>
                     </div>
-                    {/* Single dropdown for certification */}
                     <div className="form-row">
                         <select
                             name="certification"
@@ -328,40 +358,136 @@ export default function SellerDashboard() {
                 <ul>
                     {inventory.map((item) => (
                         <li key={item.id}>
-                            <div className="diamond-info">
-                                <img src={item.imageUrl || '/images/diamond-placeholder.jpg'} alt={item.title}/>
-                                <div className="info">
-                                    <p>
-                                        <strong>{item.title}</strong> — {item.carat} ct — {item.cut || 'No cut specified'}
-                                    </p>
-                                    <p>
-                                        Price: £{item.price}
-                                        {item.status ? ` (${item.status})` : ''}
-                                        {/* Only show parentheses if status is not empty */}
-                                    </p>
-                                    <p>
-                                        Clarity: {item.clarity} | Color: {item.color}
-                                    </p>
-                                    <p>
-                                        Certification: {item.certification || 'None'}
-                                    </p>
-                                    <p>
-                                        {item.description ? item.description : 'No description provided'}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="actions">
-                                <button className="edit-btn" onClick={() => handleEdit(item.id)}>Edit</button>
-                                <button className="delete-btn" onClick={() => handleDelete(item.id)}>Delete</button>
-                                <select
-                                    value={item.status}
-                                    onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                                >
-                                    <option value="Available">Available</option>
-                                    <option value="Sold">Sold</option>
-                                    <option value="Reserved">Reserved</option>
-                                </select>
-                            </div>
+                            {editingDiamondId === item.id ? (
+                                // Inline editing form for this diamond
+                                <form onSubmit={(e) => handleEditSubmit(e, item.id)}>
+                                    <div className="form-row">
+                                        <input
+                                            name="title"
+                                            placeholder="Title"
+                                            value={editFormData.title || ''}
+                                            onChange={handleEditChange}
+                                            required
+                                        />
+                                        <input
+                                            name="carat"
+                                            placeholder="Carat"
+                                            value={editFormData.carat || ''}
+                                            onChange={handleEditChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-row">
+                                        <select name="cut" value={editFormData.cut || 'Brilliant'} onChange={handleEditChange} required>
+                                            {cutOptions.map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            name="color"
+                                            placeholder="Color"
+                                            value={editFormData.color || ''}
+                                            onChange={handleEditChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-row">
+                    <textarea
+                        name="description"
+                        placeholder="Description"
+                        value={editFormData.description || ''}
+                        onChange={handleEditChange}
+                        style={{ flex: '1 1 100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                                    </div>
+                                    <div className="form-row">
+                                        <select name="clarity" value={editFormData.clarity || 'IF'} onChange={handleEditChange} required>
+                                            {clarityOptions.map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            name="price"
+                                            type="number"
+                                            placeholder="Price"
+                                            value={editFormData.price || ''}
+                                            onChange={handleEditChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-row">
+                                        <input
+                                            name="imageUrl"
+                                            placeholder="Or enter Image URL"
+                                            value={editFormData.imageUrl || ''}
+                                            onChange={handleEditChange}
+                                        />
+                                        <input type="file" onChange={handleFileChange} />
+                                        <select name="status" value={editFormData.status || 'Available'} onChange={handleEditChange} required>
+                                            <option value="Available">Available</option>
+                                            <option value="Sold">Sold</option>
+                                            <option value="Reserved">Reserved</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-row">
+                                        <select
+                                            name="certification"
+                                            value={editFormData.certification || 'GIA'}
+                                            onChange={handleEditChange}
+                                            style={{ flex: '1 1 100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                        >
+                                            {certificationOptions.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button type="submit" className="btn">Save</button>
+                                    <button type="button" className="btn cancel-btn" onClick={() => setEditingDiamondId(null)}>
+                                        Cancel
+                                    </button>
+                                </form>
+                            ) : (
+                                <>
+                                    <div className="diamond-info">
+                                        <img src={item.imageUrl || '/images/diamond-placeholder.jpg'} alt={item.title} />
+                                        <div className="info">
+                                            <p>
+                                                <strong>{item.title}</strong> — {item.carat} ct — {item.cut || 'No cut specified'}
+                                            </p>
+                                            <p>
+                                                Price: £{item.price} {item.status ? `(${item.status})` : ''}
+                                            </p>
+                                            <p>
+                                                Clarity: {item.clarity} | Color: {item.color}
+                                            </p>
+                                            <p>
+                                                Certification: {item.certification || 'None'}
+                                            </p>
+                                            <p>
+                                                {item.description ? item.description : 'No description provided'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="actions">
+                                        <button className="edit-btn" onClick={() => startEditing(item)}>
+                                            Edit
+                                        </button>
+                                        <button className="delete-btn" onClick={() => handleDelete(item.id)}>
+                                            Delete
+                                        </button>
+                                        <select
+                                            value={item.status}
+                                            onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                        >
+                                            <option value="Available">Available</option>
+                                            <option value="Sold">Sold</option>
+                                            <option value="Reserved">Reserved</option>
+                                        </select>
+                                    </div>
+                                </>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -420,6 +546,9 @@ export default function SellerDashboard() {
                 }
                 .btn:hover {
                     background: #8c6234;
+                }
+                .cancel-btn {
+                    background: #ccc;
                 }
                 ul {
                     list-style: none;

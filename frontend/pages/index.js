@@ -42,18 +42,20 @@ export default function HomePage() {
                 <title>DiamondStore | Home</title>
                 <meta name="description" content="Browse our exquisite diamond collection" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                {/* Make sure your _document.js or global CSS imports the desired fonts */}
             </Head>
 
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-background"></div>
-                <div className="hero-overlay"></div>
-                <div className="hero-text">
-                    <p className="breadcrumb">Home / Guides & Education / Diamond Clarity</p>
-                    <h1 className="hero-title">Understanding the 4Cs: Diamond Clarity</h1>
+                <div className="hero-text fade-in">
+                    <p className="breadcrumb">
+                        <Link href="/">Home</Link> /{' '}
+                        <Link href="/listings">Explore Diamonds</Link> /{' '}
+                        <Link href="/DiamondInfo">Clarity & Brilliance</Link>
+                    </p>
+                    <h1 className="hero-title">Crafted to Perfection: Discover Diamond Clarity</h1>
                     <p className="hero-subtitle">
-                        Explore the intricacies of diamond clarity and find the perfect gem for your special moment.
+                        Uncover the brilliance behind every cut — because your story deserves a gem that reflects it perfectly.
                     </p>
                 </div>
             </section>
@@ -89,54 +91,70 @@ export default function HomePage() {
                     align-items: center;
                     justify-content: center;
                 }
+
                 .hero-background {
                     position: absolute;
                     top: 0;
                     left: 0;
                     right: 0;
                     bottom: 0;
-                    background: url('/images/hero.jpg') center/cover no-repeat;
-                    /* Replace with your high-quality hero image */
+                    background: linear-gradient(
+                            rgba(0, 0, 0, 0.4),
+                            rgba(0, 0, 0, 0.4)
+                    ), url('/images/hero1.png') center/cover no-repeat;
+                    z-index: 0;
                 }
-                .hero-overlay {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(255, 255, 255, 0.15);
-                }
+
                 .hero-text {
                     position: relative;
                     z-index: 1;
                     max-width: 800px;
                     text-align: center;
+                    color: white;
                     opacity: 0;
                     transform: translateY(20px);
                 }
+
                 .fade-in {
                     animation: fadeInUp 1.5s forwards;
                 }
+
                 @keyframes fadeInUp {
                     to {
                         opacity: 1;
                         transform: translateY(0);
                     }
                 }
+
                 .breadcrumb {
                     font-size: 14px;
-                    color: #666;
+                    color: #f5f5f5; /* Light text */
                     margin-bottom: 10px;
                 }
+
+                .breadcrumb a {
+                    color: #f5f5f5;
+                    text-decoration: none;
+                }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+                .breadcrumb a, .breadcrumb span {
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); /* Adds clarity over image */
+                }
+
                 .hero-title {
                     font-size: 40px;
                     margin-bottom: 10px;
-                    color: #000;
                     font-family: 'EB Garamond', serif;
+                    color: #fff;
                 }
+
                 .hero-subtitle {
                     font-size: 18px;
-                    color: #333;
+                    color: #ddd;
                     line-height: 1.4;
                 }
 
@@ -145,11 +163,13 @@ export default function HomePage() {
                     padding: 40px;
                     text-align: center;
                 }
+
                 .content-section h2 {
                     font-family: 'EB Garamond', serif;
                     font-size: 32px;
                     margin-bottom: 20px;
                 }
+
                 .content-section p {
                     font-size: 16px;
                     max-width: 600px;
@@ -162,17 +182,20 @@ export default function HomePage() {
                     padding: 40px;
                     text-align: center;
                 }
+
                 .featured-section h2 {
                     font-family: 'EB Garamond', serif;
                     font-size: 32px;
                     margin-bottom: 30px;
                 }
+
                 .diamond-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                     gap: 20px;
                     margin-bottom: 30px;
                 }
+
                 .more-btn {
                     display: inline-block;
                     padding: 10px 20px;
@@ -182,6 +205,7 @@ export default function HomePage() {
                     border-radius: 4px;
                     transition: background 0.3s;
                 }
+
                 .more-btn:hover {
                     background: #8c6234;
                 }

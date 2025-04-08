@@ -44,6 +44,10 @@ export default function Listings() {
 
     // Sorting
     const sortDiamonds = (a, b) => {
+        if (!filters.sort) {
+            // Default sort: sort by creation time (assuming the API returns createdAt)
+            return new Date(a.createdAt) - new Date(b.createdAt);
+        }
         switch (filters.sort) {
             case 'priceAsc':
                 return a.price - b.price;

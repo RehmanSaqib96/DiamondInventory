@@ -66,6 +66,7 @@ export default function Navbar() {
                 </Link>
                 <nav className="menu">
                     <Link href="/listings">Shop Diamonds</Link>
+                    <Link href="/DiamondInfo">Diamond Information</Link>
                     {user && user.role === 'seller' ? (
                         <>
                             <Link href="/inquiries">Buyer Inquiries</Link>
