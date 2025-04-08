@@ -1,78 +1,77 @@
 // components/AccountDropdown.js
-import {useState} from 'react';
 import Link from 'next/link';
 
-export default function AccountDropdown({user, handleLogout}) {
-    const [open, setOpen] = useState(false);
-
-    const toggleDropdown = (e) => {
-        // Prevent the click event from propagating (so that clicking inside the dropdown doesn't close it immediately)
-        e.stopPropagation();
-        setOpen((prev) => !prev);
-    };
-
-    const closeDropdown = () => setOpen(false);
-
+export default function AccountDropdown({ user, handleLogout }) {
     return (
-        <div className="account-dropdown" onClick={toggleDropdown}>
-            <div className="icon account-icon">👤</div>
-            {open && (
-                <div className="dropdown-content" onClick={(e) => e.stopPropagation()}>
-                    {user ? (
-                        <>
-                            <Link href="/profile">Profile</Link>
-                            <button onClick={handleLogout}>Logout</button>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/login">Login</Link>
-                            <Link href="/register">Sign Up</Link>
-                        </>
-                    )}
-                </div>
+        <div className="dropdown-menu">
+            {user ? (
+                // If user is logged in
+                <>
+                    <p className="dropdown-text">Logged in as {user.name || user.email}</p>
+                    <Link href="/profile">Profile</Link>
+                    <button className="dropdown-btn" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </>
+            ) : (
+                // If user is not logged in
+                <>
+                    <Link href="/login" className="dropdown-link">
+                        Login
+                    </Link>
+                    <Link href="/register" className="dropdown-link">
+                        Sign Up
+                    </Link>
+                </>
             )}
+
             <style jsx>{`
-                .account-dropdown {
-                    position: relative;
-                    display: inline-block;
-                }
-
-                .account-icon {
-                    font-size: 18px;
-                    cursor: pointer;
-                }
-
-                .dropdown-content {
+                .dropdown-menu {
                     position: absolute;
+                    top: 35px; /* Adjust based on your navbar height */
                     right: 0;
-                    top: 30px;
                     background: #fff;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                    padding: 10px;
+                    border: 1px solid #ddd;
                     border-radius: 4px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    padding: 10px;
                     min-width: 120px;
-                    z-index: 999;
+                    z-index: 9999;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
                 }
 
-                .dropdown-content a,
-                .dropdown-content button {
-                    display: block; /* each link on its own line */
-                    margin: 8px 0; /* vertical spacing */
-                    color: #333; /* same color for all */
-                    text-decoration: none;
-                    background: none;
-                    border: none;
-                    cursor: pointer;
+                .dropdown-text {
+                    margin: 0 0 8px;
+                    font-size: 14px;
+                    color: #333;
+                    line-height: 1.4;
+                }
+
+                .dropdown-link,
+                .dropdown-btn {
+                    display: block;
                     width: 100%;
                     text-align: left;
+                    background: none;
+                    border: none;
                     font-size: 14px;
-                    font-family: 'Open Sans', sans-serif; /* or your chosen font */
+                    color: #333;
+                    text-decoration: none;
+                    margin-bottom: 8px;
+                    cursor: pointer;
+                    line-height: 1.4;
                 }
 
-                .dropdown-content a:hover,
-                .dropdown-content button:hover {
-                    color: #a67c52; /* hover color */
-                    text-decoration: none;
+                .dropdown-link:last-of-type,
+                .dropdown-btn:last-of-type {
+                    margin-bottom: 0;
+                }
+
+                .dropdown-link:hover,
+                .dropdown-btn:hover {
+                    color: #a67c52;
                 }
             `}</style>
         </div>

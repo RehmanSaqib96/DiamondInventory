@@ -21,6 +21,10 @@ const Diamond = sequelize.define('Diamond', {
         allowNull: false,
         defaultValue: 'Available'
     },
+    imageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
 });
 
 module.exports = Diamond;

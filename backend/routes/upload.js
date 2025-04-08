@@ -19,7 +19,6 @@ router.post('/', verifyToken, upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
-    // Return the file URL (adjust as necessary for your deployment)
     const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
 });

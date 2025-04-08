@@ -220,7 +220,7 @@ export default function SellerDashboard() {
 
     return (
         <Layout>
-            <h1>Seller Dashboard</h1>
+            <h1>Diamond Dashboard</h1>
             {errorMsg && <p className="error">{errorMsg}</p>}
 
             {/* Add Diamond Form */}
