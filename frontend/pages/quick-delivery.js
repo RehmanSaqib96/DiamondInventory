@@ -17,7 +17,7 @@ export default function QuickDelivery() {
 
                 <section className="delivery-hero">
                     <img
-                        src="/images/quick-delivery-hero.jpg"
+                        src="/images/deliveryhero.png"
                         alt="Quick Delivery Hero"
                         className="hero-image"
                     />
@@ -81,27 +81,53 @@ export default function QuickDelivery() {
           position: relative;
           margin-bottom: 40px;
         }
+        .hero-section {
+            position: relative;
+            margin-bottom: 40px;
+            overflow: hidden; /* ensures overlay doesn't go outside the container */
+        }
         .hero-image {
-          width: 100%;
-          border-radius: 8px;
-          object-fit: cover;
+            width: 100%;
+            height: auto; /* let the image keep its aspect ratio */
+            display: block;
+            border-radius: 8px; /* optional rounding if you like that style */
+            object-fit: cover;
         }
         .hero-overlay {
-          position: absolute;
-          top: 20px;
-          left: 30px;
-          color: #fff;
-          text-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            position: absolute;
+            top: 50%;  /* center vertically */
+            left: 50%; /* center horizontally */
+            transform: translate(-50%, -50%); /* actually center the overlay */
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            animation: fadeInDown 1s ease forwards;
+            max-width: 80%;
         }
         .hero-overlay h2 {
-          font-family: 'EB Garamond', serif;
-          font-size: 28px;
-          margin-bottom: 10px;
+            font-family: 'EB Garamond', serif;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        .hero-overlay p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* Fade-in / Slide-down effect */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
         }
         .delivery-options,
         .tracking,
-        .care-tips,
-        .faq {
+        .care-tips{
           margin-bottom: 30px;
         }
         .delivery-options ul {

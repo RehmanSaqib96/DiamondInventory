@@ -30,22 +30,22 @@ export default function About() {
                 </p>
                 <div className="team-grid">
                     <div className="team-card">
-                        <img src="/images/team1.jpg" alt="Alice Johnson" />
+                        <img src="/images/team1.png" alt="Alice Johnson" />
                         <h3>Alice Johnson</h3>
                         <p>Chief Executive Officer</p>
                     </div>
                     <div className="team-card">
-                        <img src="/images/team2.jpg" alt="Michael Smith" />
+                        <img src="/images/team2.png" alt="Michael Smith" />
                         <h3>Michael Smith</h3>
                         <p>Chief Technology Officer</p>
                     </div>
                     <div className="team-card">
-                        <img src="/images/team3.jpg" alt="Rachel Lee" />
+                        <img src="/images/team3.png" alt="Rachel Lee" />
                         <h3>Rachel Lee</h3>
                         <p>Sales Director</p>
                     </div>
                     <div className="team-card">
-                        <img src="/images/team4.jpg" alt="John Doe" />
+                        <img src="/images/team4.png" alt="John Doe" />
                         <h3>John Doe</h3>
                         <p>Operations Manager</p>
                     </div>

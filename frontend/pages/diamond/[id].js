@@ -187,7 +187,7 @@ export default function DiamondDetails() {
             <div className="diamond-details">
                 <div className="image-section">
                     <img
-                        src={diamond.image || '/images/diamond-placeholder.jpg'}
+                        src={diamond.imageUrl || '/images/diamond-placeholder.jpg'}
                         alt={diamond.title}
                         className="main-image"
                     />
