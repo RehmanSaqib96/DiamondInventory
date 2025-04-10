@@ -140,10 +140,10 @@ export default function Navbar() {
                     ) : (
                         <li><Link href="/sell">Sell Your Diamonds</Link></li>
                     )}
+                    <li><Link href="/gifts">Gifts</Link></li>
+                    <li><Link href="/quick-delivery">Quick Delivery</Link></li>
                     <li><Link href="/about">About Us</Link></li>
-                    <li><Link href="/some-other-page">Gifts</Link></li>
-                    <li><Link href="/some-other-page">Quick Delivery</Link></li>
-                    {/* You can add as many as you want, they will be spaced out */}
+                    <li><Link href="/faq">FAQ</Link></li>
                 </ul>
             </div>
 
@@ -181,7 +181,7 @@ export default function Navbar() {
         .brand-image {
           height: 50px; /* adjust as needed */
           width: auto;
-            margin-left: 100px;
+            margin-left: 125px;
         }
         .icon {
           font-size: 24px;
