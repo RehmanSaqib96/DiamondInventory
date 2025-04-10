@@ -2,7 +2,15 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { MdSearch, MdFavoriteBorder, MdShoppingCart, MdAccountCircle } from 'react-icons/md';
+import {
+    MdSearch,
+    MdFavoriteBorder,
+    MdShoppingCart,
+    MdAccountCircle,
+    MdDateRange,   // Example: calendar
+    MdStar,        // Example: star rating
+    MdLocalShipping // Example: shipping truck
+} from 'react-icons/md';
 import AccountDropdown from './AccountDropdown';
 
 export default function Navbar() {
@@ -12,7 +20,7 @@ export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
 
-    // Read user from localStorage and listen for storage events
+    // Load user from localStorage
     useEffect(() => {
         const readUser = () => {
             const storedUser = localStorage.getItem('user');
@@ -39,10 +47,10 @@ export default function Navbar() {
         router.push('/login');
     };
 
-    // Toggle search input visibility
-    const toggleSearch = () => setShowSearch(prev => !prev);
+    // Toggle search input
+    const toggleSearch = () => setShowSearch((prev) => !prev);
 
-    // When the search form is submitted, redirect to the search page with the query
+    // Search submission
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -50,151 +58,190 @@ export default function Navbar() {
         }
     };
 
-    // Redirect to wishlist page
+    // Wishlist redirect
     const handleWishlist = () => {
         router.push('/wishlist');
     };
 
-    // Toggle account dropdown visibility
+    // Toggle account dropdown
     const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
     return (
-        <header className="navbar">
-            <div className="nav-left">
-                <Link href="/" className="logo">
-                    DiamondStore
-                </Link>
-                <nav className="menu">
-                    <Link href="/listings">Shop Diamonds</Link>
-                    <Link href="/DiamondInfo">Diamond Information</Link>
-                    {user && user.role === 'seller' ? (
-                        <>
-                            <Link href="/inquiries">Buyer Inquiries</Link>
-                            <Link href="/seller-dashboard">Diamond Dashboard</Link>
-                            <Link href="/admin-dashboard">Roles</Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/sell">Sell Your Diamonds</Link>
-                        </>
+        <header className="navbar-container">
+            {/* Main bar with left icons, center logo, right icons */}
+            <div className="main-bar">
+                {/* Left icons (like calendar, rating, shipping) */}
+                <div className="left-icons">
+                    <div className="icon" title="Calendar">
+                        <MdDateRange />
+                    </div>
+                    <div className="icon" title="Rating">
+                        <MdStar />
+                    </div>
+                    <div className="icon" title="Shipping">
+                        <MdLocalShipping />
+                    </div>
+                </div>
+
+                {/* Center Logo */}
+                <div className="center-logo">
+                    <Link href="/">
+                        <img
+                            src="/images/logo.png"
+                            alt="DiamondStore Logo"
+                            className="brand-image"
+                        />
+                    </Link>
+                </div>
+
+                {/* Right icons */}
+                <div className="right-icons">
+                    <div className="icon" onClick={toggleSearch} title="Search">
+                        <MdSearch />
+                    </div>
+                    {showSearch && (
+                        <form className="search-form" onSubmit={handleSearchSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Search diamonds..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </form>
                     )}
-                    <Link href="/about">About Us</Link>
-                </nav>
+
+                    <div className="icon" onClick={handleWishlist} title="Wishlist">
+                        <MdFavoriteBorder />
+                    </div>
+                    <div className="icon" title="Cart">
+                        <MdShoppingCart />
+                    </div>
+                    <div className="icon account-button" onClick={toggleDropdown} title="Account">
+                        <MdAccountCircle />
+                        {showDropdown && (
+                            <AccountDropdown user={user} handleLogout={handleLogout} />
+                        )}
+                    </div>
+                    <button className="appointment-btn">Book an Appointment</button>
+                </div>
             </div>
 
-            <div className="nav-right">
-                <div className="icon search-icon" onClick={toggleSearch} title="Search">
-                    <MdSearch />
-                </div>
-                {showSearch && (
-                    <form className="search-form" onSubmit={handleSearchSubmit}>
-                        <input
-                            type="text"
-                            placeholder="Search diamonds..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </form>
-                )}
-                <div className="icon wishlist-icon" onClick={handleWishlist} title="Wishlist">
-                    <MdFavoriteBorder />
-                </div>
-                <div className="icon cart-icon" title="Cart">
-                    <MdShoppingCart />
-                </div>
-                <div className="account-button" onClick={toggleDropdown} title="Account">
-                    <MdAccountCircle />
-                    {showDropdown && (
-                        <AccountDropdown user={user} handleLogout={handleLogout} />
+            {/* Sub-menu with links spread out across the width */}
+            <div className="sub-menu-bar">
+                <ul className="sub-menu-list">
+                    <li><Link href="/listings">Shop Diamonds</Link></li>
+                    <li><Link href="/DiamondInfo">Diamond Info</Link></li>
+                    {user && user.role === 'seller' ? (
+                        <>
+                            <li><Link href="/inquiries">Buyer Inquiries</Link></li>
+                            <li><Link href="/seller-dashboard">Dashboard</Link></li>
+                            <li><Link href="/admin-dashboard">Roles</Link></li>
+                        </>
+                    ) : (
+                        <li><Link href="/sell">Sell Your Diamonds</Link></li>
                     )}
-                </div>
-                <button className="appointment-btn">Book an Appointment</button>
+                    <li><Link href="/about">About Us</Link></li>
+                    <li><Link href="/some-other-page">Gifts</Link></li>
+                    <li><Link href="/some-other-page">Quick Delivery</Link></li>
+                    {/* You can add as many as you want, they will be spaced out */}
+                </ul>
             </div>
 
             <style jsx>{`
-                .navbar {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 20px 40px;
-                    background: #fff;
-                    border-bottom: 1px solid #eee;
-                    position: sticky;
-                    top: 0;
-                    z-index: 1000;
-                }
-                .nav-left {
-                    display: flex;
-                    align-items: center;
-                    gap: 40px;
-                }
-                .logo {
-                    font-family: 'EB Garamond', serif;
-                    font-size: 28px;
-                    font-weight: 500;
-                    text-decoration: none;
-                    color: #000;
-                }
-                .menu {
-                    display: flex;
-                    gap: 20px;
-                }
-                .menu a {
-                    text-decoration: none;
-                    color: #333;
-                    font-size: 16px;
-                    transition: color 0.3s;
-                }
-                .menu a:hover {
-                    color: #a67c52;
-                }
-                .nav-right {
-                    display: flex;
-                    align-items: center;
-                    gap: 20px;
-                }
-                .icon {
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #333;
-                    transition: color 0.3s;
-                }
-                .icon:hover {
-                    color: #a67c52;
-                }
-                .account-button {
-                    position: relative;
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #333;
-                    transition: color 0.3s;
-                }
-                .account-button:hover {
-                    color: #a67c52;
-                }
-                .appointment-btn {
-                    padding: 8px 16px;
-                    background: #f8d3d3;
-                    color: #333;
-                    border: none;
-                    border-radius: 4px;
-                    font-size: 14px;
-                    cursor: pointer;
-                    transition: background 0.3s;
-                }
-                .appointment-btn:hover {
-                    background: #f4c0c0;
-                }
-                .search-form {
-                    margin-left: 10px;
-                }
-                .search-form input {
-                    padding: 5px 10px;
-                    font-size: 14px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                }
-            `}</style>
+        .navbar-container {
+          width: 100%;
+          position: sticky;
+          top: 0;
+          z-index: 999;
+          background: #fff;
+          font-family: 'Open Sans', sans-serif;
+        }
+        /* Main bar */
+        .main-bar {
+          display: grid;
+          grid-template-columns: min-content auto min-content;
+          justify-content: space-between;
+          align-items: center;
+          margin: 0 auto;
+          padding: 10px 1px;
+          border-bottom: 1px solid #eee;
+        }
+        /* Left icons */
+        .left-icons,
+        .right-icons {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+        /* Center logo */
+        .center-logo {
+          display: flex;
+          justify-content: center;
+        }
+        .brand-image {
+          height: 50px; /* adjust as needed */
+          width: auto;
+            margin-left: 100px;
+        }
+        .icon {
+          font-size: 24px;
+          cursor: pointer;
+          color: #333;
+          transition: color 0.3s;
+        }
+        .icon:hover {
+          color: #a67c52;
+        }
+        .appointment-btn {
+          padding: 8px 16px;
+          background: #f8d3d3;
+          color: #333;
+          border: none;
+          border-radius: 4px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.3s;
+        }
+        .appointment-btn:hover {
+          background: #f4c0c0;
+        }
+        .search-form {
+          display: inline-block;
+          margin-left: 5px;
+        }
+        .search-form input {
+          padding: 5px 10px;
+          font-size: 14px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        /* Sub-menu bar */
+        .sub-menu-bar {
+          background: #f9f9f9;
+          border-bottom: 1px solid #eee;
+        }
+        .sub-menu-list {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 10px 20px;
+          list-style: none;
+          display: flex;
+          justify-content: space-between; /* spreads items across full width */
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .sub-menu-list li {
+          font-size: 14px;
+        }
+        .sub-menu-list li a {
+          text-decoration: none;
+          color: #333;
+          transition: color 0.3s;
+        }
+        .sub-menu-list li a:hover {
+          color: #a67c52;
+        }
+      `}</style>
         </header>
     );
 }

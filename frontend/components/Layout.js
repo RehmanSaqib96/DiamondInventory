@@ -1,24 +1,27 @@
 // components/Layout.js
-import Navbar from './Navbar';
+import NewNavbar from './Navbar';
 import Footer from './Footer';
 
 export default function Layout({ children }) {
     return (
-        <>
-            <Navbar />
-            <main>{children}</main>
+        <div className="layout-container">
+            <NewNavbar />
+            <main className="page-content">{children}</main>
             <Footer />
-            <style jsx global>{`
-        body {
-          margin: 0;
-          font-family: Arial, sans-serif;
-          background: #fff;
-          color: #333;
+            <style jsx>{`
+        .layout-container {
+          /* This ensures the entire page is centered horizontally */
+          max-width: 1350px;
+          margin: 0 auto; 
+          /* Optional padding if you want side space */
+          padding: 0 20px;
+          /* If your background is white, you can omit a background here */
         }
-        main {
-          padding: 20px;
+        .page-content {
+          /* add any global page styling */
+          min-height: 80vh; /* for example */
         }
       `}</style>
-        </>
+        </div>
     );
 }
