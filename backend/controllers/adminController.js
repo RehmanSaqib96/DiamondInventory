@@ -1,4 +1,6 @@
 // backend/controllers/adminController.js
+const { Sequelize } = require('sequelize');
+const { Op, fn, col, literal } = require('sequelize');
 const User    = require('../models/User');
 const Diamond = require('../models/Diamond');
 const Order   = require('../models/Order');
@@ -55,28 +57,56 @@ async function getSecurityLogs(req, res) {
 
 async function getSalesAnalytics(req, res) {
     try {
-        const analyticsData = {
-            totalSales: 50,
-            soldDiamonds: 20,
-            availableDiamonds: 25,
-            reservedDiamonds: 5,
-            categoryDistribution: {
-                Brilliant: 15,
-                Princess: 10,
-                Emerald: 8,
-                Oval: 7,
-                Radiant: 5,
-            },
-            salesOverTime: [
-                { month: "January",   sales: 5 },
-                { month: "February",  sales: 8 },
-                { month: "March",     sales: 10 },
-                { month: "April",     sales: 12 },
-                { month: "May",       sales: 7 },
-                { month: "June",      sales: 8 }
-            ]
-        };
-        res.json(analyticsData);
+        // 1) Total number of orders placed
+        const totalSales = await Order.count();
+
+        // 2) Count diamonds by status
+        const [
+            soldDiamonds,
+            availableDiamonds,
+            reservedDiamonds
+        ] = await Promise.all([
+            Diamond.count({ where: { status: 'Sold' } }),
+            Diamond.count({ where: { status: 'Available' } }),
+            Diamond.count({ where: { status: 'Reserved' } }),
+        ]);
+
+        // 3) Category distribution (group by cut)
+        const distRows = await Diamond.findAll({
+            attributes: [
+                'cut',
+                [ fn('COUNT', col('id')), 'count' ]
+            ],
+            group: ['cut']
+        });
+        const categoryDistribution = distRows.reduce((acc, row) => {
+            acc[row.get('cut')] = parseInt(row.get('count'), 10);
+            return acc;
+        }, {});
+
+        // 4) Sales over time (group orders by month)
+        const salesRows = await Order.findAll({
+            attributes: [
+                [ fn('date_trunc', 'month', col('createdAt')), 'month' ],
+                [ fn('COUNT', col('id')), 'count' ]
+            ],
+            group: [ literal('month') ],
+            order: [ [ literal('month'), 'ASC' ] ]
+        });
+        const salesOverTime = salesRows.map(r => ({
+            month: r.get('month').toISOString().slice(0,7),  // "YYYY-MM"
+            sales: parseInt(r.get('count'), 10)
+        }));
+
+        res.json({
+            totalSales,
+            soldDiamonds,
+            availableDiamonds,
+            reservedDiamonds,
+            categoryDistribution,
+            salesOverTime
+        });
+
     } catch (error) {
         console.error('Error fetching sales analytics:', error);
         res.status(500).json({ message: 'Error fetching sales analytics', error: error.message });
@@ -87,6 +117,6 @@ module.exports = {
     getAllUsers,
     updateUserRole,
     getFullInventory,
-    getSalesAnalytics,
     getSecurityLogs,
+    getSalesAnalytics,
 };

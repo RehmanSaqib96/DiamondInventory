@@ -1,64 +1,87 @@
 // frontend/pages/checkout.js
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 
-
 export default function Checkout() {
+    const router = useRouter();
+    const { diamondId } = router.query;
+
+    const [diamond, setDiamond] = useState(null);
     const [cardNumber, setCardNumber] = useState('');
-    const [expiry, setExpiry] = useState('');
-    const [cvv, setCvv] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
+    const [expiry, setExpiry]       = useState('');
+    const [cvv, setCvv]             = useState('');
+    const [errorMsg, setErrorMsg]   = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const validateCardNumber = (number) => {
-        // Simple Luhn check or length check
-        return number.length === 16;
-    };
+    // 1) Fetch the diamond details so we know its price
+    useEffect(() => {
+        if (!diamondId) return;
+        fetch(`http://localhost:5000/diamonds/${diamondId}`)
+            .then(res => res.json())
+            .then(data => setDiamond(data))
+            .catch(err => setErrorMsg('Unable to load diamond details'));
+    }, [diamondId]);
 
-    const validateExpiry = (exp) => {
-        // Expect MM/YY format, e.g., 12/25
-        const regex = /^(\d{2})\/(\d{2})$/;
-        const match = exp.match(regex);
-        if (!match) return false;
+    const validateCardNumber = num => num.length === 16;
+    const validateExpiry     = exp => /^\d{2}\/\d{2}$/.test(exp) && +exp.slice(0,2)>=1 && +exp.slice(0,2)<=12;
+    const validateCVV        = c   => c.length === 3;
 
-        const month = parseInt(match[1], 10);
-        const year = parseInt(match[2], 10);
-        if (month < 1 || month > 12) return false;
-
-        // Basic year check (assuming 20xx)
-        // In real apps, you might parse full year or handle century
-        return year >= 23; // e.g. 23 => 2023
-    };
-
-    const validateCVV = (c) => c.length === 3;
-
-    const handleCheckout = async (e) => {
+    const handleCheckout = async e => {
         e.preventDefault();
         setErrorMsg('');
         setSuccessMsg('');
 
+        if (!diamond) {
+            setErrorMsg('Diamond not loaded yet.');
+            return;
+        }
         if (!validateCardNumber(cardNumber)) {
-            setErrorMsg('Invalid card number (16 digits required).');
+            setErrorMsg('Card number must be 16 digits.');
             return;
         }
         if (!validateExpiry(expiry)) {
-            setErrorMsg('Invalid expiry format (MM/YY).');
+            setErrorMsg('Expiry must be MM/YY.');
             return;
         }
         if (!validateCVV(cvv)) {
-            setErrorMsg('Invalid CVV (3 digits required).');
+            setErrorMsg('CVV must be 3 digits.');
             return;
         }
 
-        // Simulate a checkout flow (fake API call)
         setIsLoading(true);
         try {
-            // Placeholder for your real payment logic
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            setSuccessMsg('Payment processed successfully!');
-        } catch (error) {
-            setErrorMsg('Failed to process the payment. Please try again.');
+            // simulate payment processing
+            await new Promise(r => setTimeout(r, 1000));
+
+            // 2) POST to your orders endpoint
+            const token = localStorage.getItem('accessToken');
+            const res = await fetch('http://localhost:5000/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    diamondId: Number(diamondId),
+                    buyerId: JSON.parse(localStorage.getItem('user')).id,
+                    amount: diamond.price            // ← pull diamond.price from state
+                })
+            });
+            if (!res.ok) {
+                const { message } = await res.json();
+                throw new Error(message || 'Order creation failed');
+            }
+            const order = await res.json();
+
+            setSuccessMsg(`🎉 Order #${order.id} confirmed!`);
+
+            // 3) Redirect to thank‑you or order page
+            router.push(`/order/${order.id}`);
+        } catch (err) {
+            console.error(err);
+            setErrorMsg(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -68,43 +91,53 @@ export default function Checkout() {
         <Layout>
             <div className="checkout-container">
                 <h2>Checkout</h2>
-                {errorMsg && <p className="error">{errorMsg}</p>}
+
+                {errorMsg   && <p className="error">{errorMsg}</p>}
                 {successMsg && <p className="success">{successMsg}</p>}
 
-                <form onSubmit={handleCheckout}>
-                    <label>Card Number</label>
-                    <input
-                        type="text"
-                        placeholder="XXXX XXXX XXXX XXXX"
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ''))}
-                        maxLength="16"
-                        required
-                    />
+                {!diamond ? (
+                    <p>Loading diamond…</p>
+                ) : (
+                    <form onSubmit={handleCheckout}>
+                        <p>
+                            <strong>{diamond.title}</strong> — £{diamond.price}
+                        </p>
 
-                    <label>Expiry (MM/YY)</label>
-                    <input
-                        type="text"
-                        placeholder="MM/YY"
-                        value={expiry}
-                        onChange={(e) => setExpiry(e.target.value)}
-                        required
-                    />
+                        <label>Card Number</label>
+                        <input
+                            type="text"
+                            maxLength="16"
+                            value={cardNumber}
+                            onChange={e=>setCardNumber(e.target.value.replace(/\D/g,''))}
+                            placeholder="XXXX XXXX XXXX XXXX"
+                            required
+                        />
 
-                    <label>CVV</label>
-                    <input
-                        type="password"
-                        placeholder="XXX"
-                        value={cvv}
-                        onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
-                        maxLength="3"
-                        required
-                    />
+                        <label>Expiry (MM/YY)</label>
+                        <input
+                            type="text"
+                            value={expiry}
+                            onChange={e=>setExpiry(e.target.value)}
+                            placeholder="MM/YY"
+                            required
+                        />
 
-                    <button type="submit" disabled={isLoading}>
-                        {isLoading ? 'Processing...' : 'Pay Now'}
-                    </button>
-                </form>
+                        <label>CVV</label>
+                        <input
+                            type="password"
+                            maxLength="3"
+                            value={cvv}
+                            onChange={e=>setCvv(e.target.value.replace(/\D/g,''))}
+                            placeholder="XXX"
+                            required
+                        />
+
+                        <button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Processing…' : `Pay £${diamond.price}`}
+                        </button>
+                    </form>
+                )}
+            </div>
 
                 <style jsx>{`
                     .checkout-container {
@@ -174,7 +207,6 @@ export default function Checkout() {
                         background: #8c6234;
                     }
                 `}</style>
-            </div>
         </Layout>
     );
 }

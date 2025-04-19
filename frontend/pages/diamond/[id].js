@@ -126,42 +126,31 @@ export default function DiamondDetails() {
     // “Buy Now” example
     const handleBuy = async () => {
         if (!diamond) return;
-
         const token = localStorage.getItem('accessToken');
         if (!token) {
-            toast.info('Please sign up or login to buy this diamond.', {
-                position: 'top-right',
-                autoClose: 3000,
-            });
-            router.push('/login');
-            return;
+            toast.info('Please sign up or login to buy this diamond.');
+            return router.push('/login');
         }
 
         try {
-            const res = await fetch(`http://localhost:5000/diamonds/buy/${diamond.id}`, {
+            const res = await fetch('http://localhost:5000/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
+                body: JSON.stringify({
+                    diamondId: diamond.id,
+                    amount: diamond.price         // ← pull from diamond
+                }),
             });
-            if (res.ok) {
-                toast.success('Diamond purchased successfully!', {
-                    position: 'top-right',
-                    autoClose: 3000,
-                });
-            } else {
-                toast.error('Failed to purchase diamond.', {
-                    position: 'top-right',
-                    autoClose: 3000,
-                });
-            }
-        } catch (error) {
-            console.error('Error buying diamond:', error);
-            toast.error('Error buying diamond.', {
-                position: 'top-right',
-                autoClose: 3000,
-            });
+            if (!res.ok) throw new Error('Purchase failed');
+            const order = await res.json();
+            toast.success('Purchase successful!');
+            router.push(`/order/${order.id}`);  // ← redirect to thank‑you page
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to complete purchase.');
         }
     };
 

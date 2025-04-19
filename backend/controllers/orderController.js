@@ -1,5 +1,5 @@
 // backend/controllers/orderController.js
-const Order = require('../models/Order');
+const { Order, Diamond, User } = require('../models');
 
 exports.placeOrder = async (req, res) => {
     try {
@@ -25,12 +25,20 @@ exports.getOrders = async (req, res) => {
 
 exports.getOrderById = async (req, res) => {
     try {
-        const order = await Order.findByPk(req.params.id);
-        if (!order)
-            return res.status(404).json({ message: 'Order not found' });
+        const order = await Order.findByPk(
+            req.params.id,
+            {
+                include: [
+                    { model: Diamond, as: 'Diamond' },
+                    { model: User,    as: 'Buyer', attributes: ['id','name','email'] }
+                ]
+            }
+        );
+        if (!order) return res.status(404).json({ message: 'Order not found' });
         res.json(order);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching order', error });
+        console.error('Error fetching order:', error);
+        res.status(500).json({ message: 'Error fetching order', error: error.message });
     }
 };
 
@@ -44,5 +52,17 @@ exports.updateOrderStatus = async (req, res) => {
         res.json(order);
     } catch (error) {
         res.status(500).json({ message: 'Error updating order', error });
+    }
+};
+
+exports.createOrder = async (req, res) => {
+    try {
+        const { diamondId, buyerId, amount } = req.body;
+        // you may also want to check stock/status, etc.
+        const order = await Order.create({ diamondId, buyerId, amount });
+        return res.status(201).json(order);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Could not create order', error: err.message });
     }
 };

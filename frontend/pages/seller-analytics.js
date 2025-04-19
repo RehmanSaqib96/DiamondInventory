@@ -1,3 +1,4 @@
+// pages/seller-analytics.js
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
@@ -15,7 +16,6 @@ import {
     Legend,
 } from 'chart.js';
 
-// Register Chart.js modules
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -39,8 +39,7 @@ export default function SellerAnalytics() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error('Failed to fetch analytics');
-            const data = await res.json();
-            setAnalytics(data);
+            setAnalytics(await res.json());
         } catch (e) {
             console.error(e);
             setErrorMsg(e.message);
@@ -53,8 +52,22 @@ export default function SellerAnalytics() {
         return () => clearInterval(iv);
     }, []);
 
-    // Show loading or error
-    if (!analytics && !errorMsg) {
+    // 1) If we have an error, show it and bail out
+    if (errorMsg) {
+        return (
+            <Layout>
+                <Head>
+                    <title>Seller Analytics | DiamondStore</title>
+                </Head>
+                <p style={{ textAlign: 'center', margin: '2rem', color: 'red' }}>
+                    {errorMsg}
+                </p>
+            </Layout>
+        );
+    }
+
+    // 2) If we're still waiting on analytics, show a loading state
+    if (!analytics) {
         return (
             <Layout>
                 <Head>
@@ -65,20 +78,30 @@ export default function SellerAnalytics() {
         );
     }
 
-    // Prepare data
+    // Now analytics is guaranteed non-null, safe to destructure
+    const {
+        totalSales,
+        soldDiamonds,
+        availableDiamonds,
+        reservedDiamonds,
+        categoryDistribution = {},
+        salesOverTime = [],
+    } = analytics;
+
+    // Prepare chart data
     const categoryData = {
-        labels: Object.keys(analytics.categoryDistribution || {}),
+        labels: Object.keys(categoryDistribution),
         datasets: [
             {
                 label: 'Diamonds by Cut',
-                data: Object.values(analytics.categoryDistribution || {}),
+                data: Object.values(categoryDistribution),
                 backgroundColor: [
-                    '#A67C52', // Brilliant
-                    '#8C6234', // Princess
-                    '#B08E5A', // Emerald
-                    '#C19641', // Oval
-                    '#D5AE69', // Radiant
-                    '#EACAA0', // Asscher
+                    '#A67C52',
+                    '#8C6234',
+                    '#B08E5A',
+                    '#C19641',
+                    '#D5AE69',
+                    '#EACAA0',
                 ],
                 borderColor: '#fff',
                 borderWidth: 2,
@@ -87,11 +110,11 @@ export default function SellerAnalytics() {
     };
 
     const timeData = {
-        labels: (analytics.salesOverTime || []).map((x) => x.month),
+        labels: salesOverTime.map((x) => x.month),
         datasets: [
             {
                 label: 'Monthly Sales',
-                data: (analytics.salesOverTime || []).map((x) => x.sales),
+                data: salesOverTime.map((x) => x.sales),
                 fill: false,
                 borderColor: 'rgba(106,90,205,1)',
                 tension: 0.3,
@@ -101,9 +124,7 @@ export default function SellerAnalytics() {
 
     const baseOptions = {
         maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'top' },
-        },
+        plugins: { legend: { position: 'top' } },
     };
 
     return (
@@ -118,18 +139,17 @@ export default function SellerAnalytics() {
 
             <div className="analytics-container">
                 <h1>Live Analytics</h1>
-                {errorMsg && <p className="error">{errorMsg}</p>}
 
                 <div className="metrics">
                     {[
-                        ['Total Sales', analytics.totalSales],
-                        ['Sold Diamonds', analytics.soldDiamonds],
-                        ['Available Diamonds', analytics.availableDiamonds],
-                        ['Reserved Diamonds', analytics.reservedDiamonds],
+                        ['Total Sales', totalSales],
+                        ['Sold Diamonds', soldDiamonds],
+                        ['Available Diamonds', availableDiamonds],
+                        ['Reserved Diamonds', reservedDiamonds],
                     ].map(([label, value]) => (
                         <div key={label} className="metric-card">
                             <h2>{label}</h2>
-                            <p>{value ?? 0}</p>
+                            <p>{value}</p>
                         </div>
                     ))}
                 </div>
@@ -138,21 +158,48 @@ export default function SellerAnalytics() {
                     <div className="chart-section">
                         <h3>Diamonds by Cut (Bar)</h3>
                         <div className="chart-wrapper">
-                            <Bar data={categoryData} options={{ ...baseOptions, plugins: { ...baseOptions.plugins, title: { display: true, text: 'By Cut (Bar)' } } }} />
+                            <Bar
+                                data={categoryData}
+                                options={{
+                                    ...baseOptions,
+                                    plugins: {
+                                        ...baseOptions.plugins,
+                                        title: { display: true, text: 'By Cut (Bar)' },
+                                    },
+                                }}
+                            />
                         </div>
                     </div>
 
                     <div className="chart-section">
                         <h3>Diamonds by Cut (Pie)</h3>
                         <div className="chart-wrapper">
-                            <Pie data={categoryData} options={{ ...baseOptions, plugins: { ...baseOptions.plugins, title: { display: true, text: 'By Cut (Pie)' } } }} />
+                            <Pie
+                                data={categoryData}
+                                options={{
+                                    ...baseOptions,
+                                    plugins: {
+                                        ...baseOptions.plugins,
+                                        title: { display: true, text: 'By Cut (Pie)' },
+                                    },
+                                }}
+                            />
                         </div>
                     </div>
 
                     <div className="chart-section">
                         <h3>Monthly Sales Trends</h3>
                         <div className="chart-wrapper">
-                            <Line data={timeData} options={{ ...baseOptions, plugins: { ...baseOptions.plugins, title: { display: true, text: 'Sales Over Time' } } }} />
+                            <Line
+                                data={timeData}
+                                options={{
+                                    ...baseOptions,
+                                    plugins: {
+                                        ...baseOptions.plugins,
+                                        title: { display: true, text: 'Sales Over Time' },
+                                    },
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -170,10 +217,6 @@ export default function SellerAnalytics() {
           color: #333;
           margin-bottom: 30px;
         }
-        .error {
-          color: red;
-          margin-bottom: 20px;
-        }
         .metrics {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -185,7 +228,7 @@ export default function SellerAnalytics() {
           border: 1px solid #eee;
           border-radius: 8px;
           padding: 20px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
         .metric-card h2 {
           font-family: 'EB Garamond', serif;
