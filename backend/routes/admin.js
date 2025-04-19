@@ -11,5 +11,6 @@ router.get('/inventory', verifyToken, isSeller, adminController.getFullInventory
 router.get('/sales', verifyToken, isSeller, adminController.getSalesAnalytics);
 router.get('/logs', verifyToken, isSeller, adminController.getSecurityLogs);
 router.put('/users/:id', verifyToken, isSeller, adminController.updateUserRole);
+router.get('/sales', verifyToken, isSeller, adminController.getSalesAnalytics);
 
 module.exports = router;

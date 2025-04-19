@@ -10,4 +10,6 @@ router.get('/inventory', verifyToken, isSeller, logAction('View Inventory'), adm
 router.get('/sales', verifyToken, isSeller, logAction('View Sales Analytics'), adminController.getSalesAnalytics);
 router.get('/logs', verifyToken, isSeller, logAction('View Security Logs'), adminController.getSecurityLogs);
 router.put('/users/:id', verifyToken, isSeller, adminController.updateUserRole);
+router.get('/sales', verifyToken, isSeller, adminController.getSalesAnalytics);
+
 module.exports = router;

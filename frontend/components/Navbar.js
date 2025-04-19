@@ -5,11 +5,10 @@ import { useRouter } from 'next/router';
 import {
     MdSearch,
     MdFavoriteBorder,
-    MdShoppingCart,
     MdAccountCircle,
-    MdDateRange,   // Example: calendar
-    MdStar,        // Example: star rating
-    MdLocalShipping // Example: shipping truck
+    MdDateRange,
+    MdStar,
+    MdLocalShipping
 } from 'react-icons/md';
 import AccountDropdown from './AccountDropdown';
 
@@ -113,9 +112,6 @@ export default function Navbar() {
                     <div className="icon" onClick={handleWishlist} title="Wishlist">
                         <MdFavoriteBorder />
                     </div>
-                    <div className="icon" title="Cart">
-                        <MdShoppingCart />
-                    </div>
                     <div className="icon account-button" onClick={toggleDropdown} title="Account">
                         <MdAccountCircle />
                         {showDropdown && (
@@ -136,6 +132,7 @@ export default function Navbar() {
                             <li><Link href="/inquiries">Buyer Inquiries</Link></li>
                             <li><Link href="/seller-dashboard">Dashboard</Link></li>
                             <li><Link href="/admin-dashboard">Roles</Link></li>
+                            <li><Link href="/seller-analytics">Charts</Link></li>
                         </>
                     ) : (
                         <li><Link href="/sell">Sell Your Diamonds</Link></li>
