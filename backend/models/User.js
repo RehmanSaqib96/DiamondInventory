@@ -23,7 +23,9 @@ const User = sequelize.define('User', {
     role: {
         type: DataTypes.ENUM('customer', 'seller'),
         defaultValue: 'customer'
-    }
+    },
+    resetToken:       { type: DataTypes.STRING, allowNull: true },
+    resetTokenExpiry: { type: DataTypes.DATE,   allowNull: true },
 });
 
 module.exports = User;
