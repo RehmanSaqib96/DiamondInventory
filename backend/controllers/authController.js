@@ -13,50 +13,54 @@ const refreshTokens = [];
 exports.register = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
-
-        // Validate inputs if needed
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Hash password
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user in DB
-        await User.create({
+        // Create the user
+        const user = await User.create({
             name,
             email,
             password: hashedPassword,
-            role: role || 'customer'  // or omit 'role' if you rely on defaultValue
+            role: role || 'customer',
         });
 
-
-        // Send confirmation email
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: email,
+        // Send welcome email (html + text in one go)
+        transporter.sendMail({
+            from:    `"DiamondStore" <no-reply@${process.env.MAILGUN_DOMAIN}>`,
+            to:      email,
             subject: 'Welcome to DiamondStore!',
-            text: `Hello ${name},\n\nThank you for registering at DiamondStore.\n\nBest Regards,\nDiamondStore Team`
-        };
+            text:    `Hello ${name},\n\nThanks for signing up at DiamondStore. We’re thrilled to have you!\n\nHappy browsing,\nDiamondStore Team`,
+            html:    `
+        <h1>Hello ${name},</h1>
+        <p>Thanks for signing up at <strong>DiamondStore</strong>. We’re thrilled to have you!</p>
+        <p>Feel free to browse our listings and let us know if you have any questions.</p>
+        <p>Happy browsing,<br/>DiamondStore Team</p>
+      `
+        }, (err, info) => {
+            if (err) console.error('Welcome email failed:', err);
+            else    console.log('Welcome email sent:', info.response);
+        });
 
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.error('Error sending email:', err);
-            } else {
-                console.log('Email sent:', info.response);
+        // Single response to the client
+        return res.status(201).json({
+            message: 'Registration successful',
+            user: {
+                id:    user.id,
+                name:  user.name,
+                email: user.email,
+                role:  user.role
             }
         });
 
-        return res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error('Registration error:', error);
-
-        // Check for unique constraint (duplicate email)
         if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).json({ message: 'Email already exists' });
         }
-
-        // Return a generic 500 if something else goes wrong
         return res.status(500).json({ message: 'Error registering user', error: error.message });
     }
 };

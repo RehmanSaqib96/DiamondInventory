@@ -1,24 +1,20 @@
 // config/email.js
 const nodemailer = require('nodemailer');
-require('dotenv').config(); // Ensure your .env variables are loaded
+const mg       = require('nodemailer-mailgun-transport');
+require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT, 10), // Convert to number
-    secure: process.env.EMAIL_SECURE === 'true', // Boolean value
+const auth = {
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        api_key: process.env.MAILGUN_API_KEY,
+        domain:  process.env.MAILGUN_DOMAIN,
     }
-});
+};
 
-// Optional: Verify connection configuration
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('Email transporter error:', error);
-    } else {
-        console.log('Email transporter is ready to send messages');
-    }
+const transporter = nodemailer.createTransport(mg(auth));
+
+transporter.verify((err, success) => {
+    if (err) console.error('Mailgun transporter error:', err);
+    else    console.log('Mailgun transporter ready');
 });
 
 module.exports = transporter;
