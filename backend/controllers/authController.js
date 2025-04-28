@@ -7,7 +7,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your_jwt_refresh_s
 const transporter = require('../config/email');
 const crypto = require('crypto');
 
-// In-memory store for refresh tokens (for demo purposes)
+// In-memory store for refresh tokens
 const refreshTokens = [];
 
 exports.register = async (req, res) => {
@@ -28,7 +28,7 @@ exports.register = async (req, res) => {
             role: role || 'customer',
         });
 
-        // Send welcome email (html + text in one go)
+        // Send welcome email
         transporter.sendMail({
             from:    `"DiamondStore" <no-reply@${process.env.MAILGUN_DOMAIN}>`,
             to:      email,
@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // 3. Generate JWT (ensure that JWT_SECRET is the same as used in your verifyToken middleware)
+        // 3. Generate JWT
         const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
 
         // 4. Return the token and the user object, including the name
@@ -143,8 +143,6 @@ exports.forgotPassword = async (req, res) => {
         user.resetTokenExpiry = expiry;
         await user.save();
 
-        // TODO: send email containing link:
-        //   https://your-frontend.com/reset-password/${token}
         console.log(`RESET LINK: http://localhost:3000/reset-password/${token}`);
 
         res.json({ message: 'If that email is registered, you’ll get a reset link.' });

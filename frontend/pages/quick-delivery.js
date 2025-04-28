@@ -84,20 +84,20 @@ export default function QuickDelivery() {
         .hero-section {
             position: relative;
             margin-bottom: 40px;
-            overflow: hidden; /* ensures overlay doesn't go outside the container */
+            overflow: hidden;
         }
         .hero-image {
             width: 100%;
-            height: auto; /* let the image keep its aspect ratio */
+            height: auto;
             display: block;
-            border-radius: 8px; /* optional rounding if you like that style */
+            border-radius: 8px;
             object-fit: cover;
         }
         .hero-overlay {
             position: absolute;
-            top: 50%;  /* center vertically */
-            left: 50%; /* center horizontally */
-            transform: translate(-50%, -50%); /* actually center the overlay */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
             color: #fff;
             text-shadow: 0 2px 5px rgba(0,0,0,0.4);

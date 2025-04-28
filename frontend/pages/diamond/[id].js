@@ -12,7 +12,7 @@ export default function DiamondDetails() {
     const [similarDiamonds, setSimilarDiamonds] = useState([]);
 
     useEffect(() => {
-        // Check if user is logged in (optional)
+        // Check if user is logged in
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
@@ -69,7 +69,6 @@ export default function DiamondDetails() {
         fetchSimilar();
     }, [id]);
 
-    // “Add to Wishlist” example
     const handleAddToWishlist = async () => {
         console.log("handleAddToWishlist called");
         if (!diamond) return;
@@ -123,7 +122,6 @@ export default function DiamondDetails() {
         }
     };
 
-    // “Buy Now” example
     const handleBuy = async () => {
         if (!diamond) return;
         const token = localStorage.getItem('accessToken');
@@ -141,7 +139,7 @@ export default function DiamondDetails() {
                 },
                 body: JSON.stringify({
                     diamondId: diamond.id,
-                    amount: diamond.price         // ← pull from diamond
+                    amount: diamond.price
                 }),
             });
             if (!res.ok) throw new Error('Purchase failed');
@@ -154,7 +152,6 @@ export default function DiamondDetails() {
         }
     };
 
-    // “Send Inquiry” example
     const handleInquirySubmit = (e) => {
         e.preventDefault();
         toast.info('Inquiry submitted!', {

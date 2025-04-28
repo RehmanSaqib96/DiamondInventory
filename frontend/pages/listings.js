@@ -12,7 +12,7 @@ export default function Listings() {
     const [filters, setFilters] = useState({
         minPrice: '',
         maxPrice: '',
-        sort: '', // e.g. 'priceAsc', 'caratDesc', etc.
+        sort: '',
     });
 
     // Fetch diamonds on mount
@@ -22,7 +22,6 @@ export default function Listings() {
 
     const fetchDiamonds = async () => {
         try {
-            // Replace with your actual endpoint (public or protected)
             const res = await fetch('http://localhost:5000/diamonds/public');
             if (res.ok) {
                 const data = await res.json();

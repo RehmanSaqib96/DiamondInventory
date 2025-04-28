@@ -16,15 +16,11 @@ exports.getAllDiamondsPublic = async (req, res) => {
 
 exports.createDiamond = async (req, res) => {
     try {
-        // Destructure diamond properties from the request body
         const { title, description, price, carat, color, clarity, cut, certification, status } = req.body;
         const sellerId = req.user.id;
 
-        // If a file was uploaded, construct its URL; otherwise fall back to any provided imageUrl (or null)
         let imageUrl = req.body.imageUrl || null;
         if (req.file) {
-            // Ensure your Express server has this static middleware:
-            // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
             imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 

@@ -3,16 +3,14 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 exports.verifyToken = (req, res, next) => {
-    console.log("Incoming headers:", req.headers); // Debug: log all headers
+    console.log("Incoming headers:", req.headers);
 
-    // Use lowercase key since Express normalizes headers to lowercase
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
         console.error("No token provided. Headers:", req.headers);
         return res.status(401).json({ message: 'No token provided' });
     }
 
-    // Expect header to be in format: "Bearer <token>"
     const token = authHeader.split(' ')[1];
     if (!token) {
         console.error("Bearer token missing:", authHeader);

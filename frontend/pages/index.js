@@ -13,7 +13,6 @@ export default function HomePage() {
     }, []);
 
     useEffect(() => {
-        // Add fade-in effect to hero text after component mounts
         const heroText = document.querySelector('.hero-text');
         if (heroText) {
             heroText.classList.add('fade-in');

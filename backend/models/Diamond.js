@@ -12,9 +12,9 @@ const Diamond = sequelize.define('Diamond', {
     color: DataTypes.STRING,
     clarity: DataTypes.STRING,
     sellerId: DataTypes.INTEGER,
-    certification: {  // Model property is singular
+    certification: {
         type: DataTypes.STRING,
-        field: 'certifications'  // Maps to the plural column in DB
+        field: 'certifications'
     },
     status: {
         type: DataTypes.STRING,

@@ -63,7 +63,6 @@ export default function Gifts() {
                     </p>
                     <GiftQuiz />
 
-                    {/* (Optional) Additional content: a grid of gift ideas, featured products, etc. */}
                     <section className="gift-grid"></section>
                 </section>
             </div>

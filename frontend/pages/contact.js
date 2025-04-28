@@ -12,7 +12,6 @@ export default function Contact() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // In production, send data to backend API
         setSuccessMsg('Thank you for contacting us. We will get back to you soon.');
         setFormData({ name: '', email: '', subject: '', message: '' });
     };

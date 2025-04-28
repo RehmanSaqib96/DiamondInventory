@@ -11,7 +11,6 @@ export default function InquiryDetails() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // If there's no ID yet, wait until Next.js provides it
         if (!id) return;
 
         // Check user role & fetch data

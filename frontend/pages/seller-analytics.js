@@ -52,7 +52,6 @@ export default function SellerAnalytics() {
         return () => clearInterval(iv);
     }, []);
 
-    // 1) If we have an error, show it and bail out
     if (errorMsg) {
         return (
             <Layout>
@@ -66,7 +65,7 @@ export default function SellerAnalytics() {
         );
     }
 
-    // 2) If we're still waiting on analytics, show a loading state
+
     if (!analytics) {
         return (
             <Layout>
@@ -78,7 +77,6 @@ export default function SellerAnalytics() {
         );
     }
 
-    // Now analytics is guaranteed non-null, safe to destructure
     const {
         totalSales,
         soldDiamonds,
@@ -88,7 +86,6 @@ export default function SellerAnalytics() {
         salesOverTime = [],
     } = analytics;
 
-    // Prepare chart data
     const categoryData = {
         labels: Object.keys(categoryDistribution),
         datasets: [

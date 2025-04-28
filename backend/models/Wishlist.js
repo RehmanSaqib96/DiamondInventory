@@ -18,7 +18,6 @@ const Wishlist = sequelize.define('Wishlist', {
     }
 });
 
-// Define the association: a Wishlist record belongs to a Diamond
 Wishlist.belongsTo(Diamond, { foreignKey: 'diamondId', as: 'diamond' });
 
 module.exports = Wishlist;

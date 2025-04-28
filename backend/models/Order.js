@@ -10,14 +10,11 @@ const Order = sequelize.define('Order', {
     orderDate: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 });
 
-// <-- add this!
 Order.associate = (models) => {
-    // tie the FK diamondId → Diamond.id
     Order.belongsTo(models.Diamond, {
         foreignKey: 'diamondId',
         as: 'Diamond'
     });
-    // tie the FK buyerId → User.id
     Order.belongsTo(models.User, {
         foreignKey: 'buyerId',
         as: 'Buyer'

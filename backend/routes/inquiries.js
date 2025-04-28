@@ -7,9 +7,7 @@ const Inquiry = require('../models/Inquiry');
 // POST /inquiries: For buyers to submit an inquiry
 router.post('/', verifyToken, async (req, res) => {
     try {
-        // You can use req.user if the token includes buyer info
         const { diamondTitle, diamondDescription, contactMessage, imageUrl } = req.body;
-        // Optionally, use req.user for buyerId and buyerEmail:
         const buyerId = req.user.id;
         const buyerEmail = req.user.email;
 
@@ -28,10 +26,9 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
-// GET /inquiries: For admin (seller role) to view buyer inquiries
+// GET /inquiries: For admin (seller) to view buyer inquiries
 router.get('/', verifyToken, isSeller, async (req, res) => {
     try {
-        // Optionally order by creation date descending
         const inquiries = await Inquiry.findAll({ order: [['createdAt', 'DESC']] });
         res.json(inquiries);
     } catch (error) {
@@ -40,7 +37,7 @@ router.get('/', verifyToken, isSeller, async (req, res) => {
     }
 });
 
-// GET /inquiries/:id: For admin (seller role) to view a single inquiry
+// GET /inquiries/:id: For admin (seller) to view a single inquiry
 router.get('/:id', verifyToken, isSeller, async (req, res) => {
     try {
         const inquiryId = req.params.id;

@@ -28,7 +28,7 @@ export default function AccountDropdown({ user, handleLogout }) {
             <style jsx>{`
                 .dropdown-menu {
                     position: absolute;
-                    top: 35px; /* Adjust based on your navbar height */
+                    top: 35px;
                     right: 0;
                     background: #fff;
                     border: 1px solid #ddd;

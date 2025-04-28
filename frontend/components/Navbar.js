@@ -176,7 +176,7 @@ export default function Navbar() {
           justify-content: center;
         }
         .brand-image {
-          height: 50px; /* adjust as needed */
+          height: 50px;
           width: auto;
             margin-left: 125px;
         }
@@ -223,7 +223,7 @@ export default function Navbar() {
           padding: 10px 20px;
           list-style: none;
           display: flex;
-          justify-content: space-between; /* spreads items across full width */
+          justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
         }

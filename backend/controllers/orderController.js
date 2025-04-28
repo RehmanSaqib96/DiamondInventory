@@ -15,7 +15,6 @@ exports.placeOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
     try {
         const userId = req.user.id;
-        // For simplicity, fetch orders by buyer.
         const orders = await Order.findAll({ where: { buyerId: userId } });
         res.json(orders);
     } catch (error) {
@@ -58,7 +57,6 @@ exports.updateOrderStatus = async (req, res) => {
 exports.createOrder = async (req, res) => {
     try {
         const { diamondId, buyerId, amount } = req.body;
-        // you may also want to check stock/status, etc.
         const order = await Order.create({ diamondId, buyerId, amount });
         return res.status(201).json(order);
     } catch (err) {

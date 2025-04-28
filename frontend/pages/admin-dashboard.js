@@ -64,7 +64,6 @@ export default function AdminDashboard() {
                 position: 'top-right',
                 autoClose: 3000,
             });
-            // Refresh user list to reflect changes
             fetchUsers();
         } catch (error) {
             console.error('Role update error:', error);
